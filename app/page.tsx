@@ -76,6 +76,7 @@ import { NavigationOptions } from './navigation-preview';
 import { postDistance, selectFeedPosts } from './social-details';
 import { contactAccess } from './contact-policy';
 import { invitationLabel, isUpcomingInvitation, careForDate } from './qa-model';
+import AccountMenu from './account-menu';
 
 type State = {
   legacy: DemoState;
@@ -86,6 +87,7 @@ type State = {
   walk: Walk | null;
   history: Walk[];
   customPlaces: Place[];
+  preferences: { walkDuration: string };
 };
 const KEY = 'qunaliu-walk-demo-v2';
 const sections = [
@@ -105,6 +107,7 @@ function initial(now = 0): State {
     walk: null,
     history: [],
     customPlaces: [],
+    preferences: { walkDuration: '60 分钟' },
   };
 }
 function restoreStored(raw: string, defaults: State): State {
@@ -155,6 +158,13 @@ function restoreStored(raw: string, defaults: State): State {
       restored.requestNotes && typeof restored.requestNotes === 'object'
         ? restored.requestNotes
         : {};
+    restored.preferences = {
+      walkDuration: ['30 分钟', '60 分钟', '90 分钟'].includes(
+        parsed.preferences?.walkDuration,
+      )
+        ? parsed.preferences.walkDuration
+        : defaults.preferences.walkDuration,
+    };
     return restored;
   } catch {
     return defaults;
@@ -253,6 +263,7 @@ export default function Home() {
   const [ready, setReady] = useState(false);
   const [section, setSection] = useState('遛宠地图');
   const [selected, setSelected] = useState('p1');
+  const [mapVisit, setMapVisit] = useState(0);
   const [modal, setModal] = useState('');
   const [activePet, setActivePet] = useState('doubao');
   const [toast, setToast] = useState('');
@@ -395,6 +406,8 @@ export default function Home() {
       setModal('place');
       return;
     }
+    // A menu/detail link must open its place even if the map is already showing a list.
+    setMapVisit((visit) => visit + 1);
     go('遛宠地图');
   }
   function showPet(id: string) {
@@ -790,13 +803,36 @@ export default function Home() {
               >
                 <MessageCircle size={20} />
               </button>
-              <button onClick={() => go('我的宠物')} aria-label="我的宠物">
-                <Photo src={photos.corgi} className="avatar small" />
-              </button>
+              <AccountMenu
+                pet={data.pet}
+                friends={state.buddyIds.length}
+                walks={state.history.length}
+                places={walkPlaces.filter((p) =>
+                  data.placeSaved.includes(p.id),
+                )}
+                posts={data.posts.filter((p) => data.saved.includes(p.id))}
+                walk={walking ? state.walk : null}
+                duration={state.preferences.walkDuration}
+                onDuration={(walkDuration) =>
+                  setState((s) => ({ ...s, preferences: { walkDuration } }))
+                }
+                onSharing={changeSharing}
+                onNavigate={go}
+                onEdit={() => {
+                  setEdit(data.pet);
+                  setModal('edit');
+                }}
+                onPlace={showPlace}
+                onPost={(id) => {
+                  setPostId(id);
+                  setModal('post');
+                }}
+              />
             </div>
           </header>
           {section === '遛宠地图' ? (
             <MobileMap
+              key={mapVisit}
               places={realPlaces}
               selected={selected}
               saved={data.placeSaved}
@@ -823,6 +859,7 @@ export default function Home() {
                 if (walking) setModal('walk');
                 else {
                   setPrivacy('private');
+                  setDuration(state.preferences.walkDuration);
                   setModal('start');
                 }
               }}
