@@ -77,6 +77,7 @@ import { postDistance, selectFeedPosts } from './social-details';
 import { contactAccess } from './contact-policy';
 import { invitationLabel, isUpcomingInvitation, careForDate } from './qa-model';
 import AccountMenu from './account-menu';
+import { PetScanner, PetCodeCard } from './pet-scanner';
 
 type State = {
   legacy: DemoState;
@@ -823,6 +824,22 @@ export default function Home() {
                   setModal('edit');
                 }}
                 onPlace={showPlace}
+                onPet={showPet}
+                plans={upcomingInvitations.map((inv) => ({
+                  id: inv.id,
+                  date: inv.date,
+                  status: invitationLabel(inv, now),
+                  place:
+                    walkPlaces.find((p) => p.id === inv.place)?.name ||
+                    '约定地点',
+                  friend:
+                    petNetwork.find((p) => p.id === inv.friend)?.name ||
+                    '宠物好友',
+                }))}
+                onInvitation={(id) => {
+                  setActiveInvitationId(id);
+                  setModal('invitation-detail');
+                }}
                 onPost={(id) => {
                   setPostId(id);
                   setModal('post');
@@ -1678,7 +1695,8 @@ export default function Home() {
                 post: '一起遛过的日子',
                 privacy: '地点共享，由你决定',
                 about: '碰爪 · 演示说明',
-                code: '添加宠物好友',
+                code: '我的碰爪码',
+                scan: '扫一扫',
                 memory: '把这次出门，认真记下来',
                 contribute: '补充遛宠好去处',
               }[modal] || '碰爪'}
@@ -2565,21 +2583,21 @@ export default function Home() {
               </div>
             )}
             {modal === 'code' && (
-              <div className="explanation">
-                <UsersRound size={30} />
-                <h3>从一次相遇，变成老朋友。</h3>
-                <p>
-                  正式产品可用宠物伙伴码或现场扫码添加好友。本 Demo
-                  用「土豆」演示双方确认后建立好友关系。
-                </p>
+              <>
+                <PetCodeCard name={data.pet.name} breed={data.pet.breed} />
                 <button
                   className="primary full-width"
-                  onClick={() => showPet('tudou')}
+                  onClick={() => setModal('scan')}
                 >
-                  认识土豆，体验加好友
-                  <ArrowUpRight size={17} />
+                  扫一扫，认识新朋友
                 </button>
-              </div>
+              </>
+            )}
+            {modal === 'scan' && (
+              <PetScanner
+                onRecognized={showPet}
+                onMyCode={() => setModal('code')}
+              />
             )}
             {modal === 'about' && (
               <div className="explanation">

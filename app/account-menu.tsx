@@ -12,6 +12,9 @@ import {
   MapPin,
   PawPrint,
   Settings2,
+  ScanLine,
+  QrCode,
+  Footprints,
   ShieldCheck,
   UsersRound,
   X,
@@ -35,6 +38,8 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
 import { photos, type DemoState } from './demo-data';
 import type { Place, Walk } from './walk-model';
+import { DeviceStatusBar } from './device-preview';
+import { PetScanner, PetCodeCard } from './pet-scanner';
 
 type Props = {
   pet: DemoState['pet'];
@@ -50,6 +55,15 @@ type Props = {
   onEdit: () => void;
   onPlace: (id: string) => void;
   onPost: (id: string) => void;
+  onPet: (id: string) => void;
+  plans: {
+    id: string;
+    place: string;
+    date: string;
+    friend: string;
+    status: string;
+  }[];
+  onInvitation: (id: string) => void;
 };
 function MenuRow({
   icon,
@@ -76,6 +90,7 @@ function MenuRow({
 export default function AccountMenu(props: Props) {
   const [open, setOpen] = useState(false);
   const [view, setView] = useState('menu');
+  const [privacyBack, setPrivacyBack] = useState('menu');
   const [collection, setCollection] = useState('地点');
   function leave(action: () => void) {
     setOpen(false);
@@ -96,13 +111,28 @@ export default function AccountMenu(props: Props) {
       >
         <img src={photos.corgi} alt="" className="avatar small" />
       </SheetTrigger>
-      <SheetContent className="account-sheet" showCloseButton={false}>
+      <SheetContent
+        className={'account-sheet account-view-' + view}
+        showCloseButton={false}
+      >
+        <DeviceStatusBar />
         <header className="account-sheet-header">
-          {view !== 'menu' && (
+          {view === 'menu' ? (
+            <SheetClose
+              className="account-icon-button"
+              aria-label="关闭个人中心"
+            >
+              <ArrowLeft size={21} />
+            </SheetClose>
+          ) : (
             <button
               className="account-icon-button"
-              aria-label={view === 'privacy' ? '返回设置' : '返回个人中心'}
-              onClick={() => setView(view === 'privacy' ? 'settings' : 'menu')}
+              aria-label={
+                view === 'privacy' && privacyBack === 'settings'
+                  ? '返回设置'
+                  : '返回个人中心'
+              }
+              onClick={() => setView(view === 'privacy' ? privacyBack : 'menu')}
             >
               <ArrowLeft size={21} />
             </button>
@@ -111,7 +141,10 @@ export default function AccountMenu(props: Props) {
             {
               (
                 {
-                  menu: '个人中心',
+                  menu: '我的',
+                  scan: '扫一扫',
+                  mycode: '我的碰爪码',
+                  plans: '我的约遛',
                   settings: '设置',
                   collections: '我的收藏',
                   privacy: '隐私与社交',
@@ -120,9 +153,22 @@ export default function AccountMenu(props: Props) {
               )[view]
             }
           </SheetTitle>
-          <SheetClose className="account-icon-button" aria-label="关闭个人中心">
-            <X size={21} />
-          </SheetClose>
+          {view === 'menu' ? (
+            <button
+              className="account-icon-button"
+              aria-label="打开设置"
+              onClick={() => setView('settings')}
+            >
+              <Settings2 size={21} />
+            </button>
+          ) : (
+            <SheetClose
+              className="account-icon-button"
+              aria-label="关闭个人中心"
+            >
+              <X size={21} />
+            </SheetClose>
+          )}
         </header>
         <SheetDescription className="sr-only">
           宠物档案、收藏与个人设置
@@ -130,35 +176,88 @@ export default function AccountMenu(props: Props) {
         <div className="account-sheet-body">
           {view === 'menu' && (
             <>
-              <div className="account-identity">
+              <button
+                className="account-profile"
+                onClick={() => leave(props.onEdit)}
+                aria-label="编辑宠物档案"
+              >
                 <img src={photos.corgi} alt="" />
-                <div>
-                  <h2>{props.pet.name}的主人</h2>
-                  <p>和{props.pet.name}一起，出门碰个爪</p>
-                  <span>本机演示身份</span>
-                </div>
-              </div>
+                <span className="account-profile-copy">
+                  <small>和毛孩子，一起认识世界</small>
+                  <strong>
+                    {props.pet.name}
+                    <span>的主人</span>
+                  </strong>
+                  <span>
+                    {props.pet.breed} · {props.pet.age} · 查看宠物档案
+                  </span>
+                </span>
+                <ChevronRight size={18} />
+              </button>
               <div className="account-stats">
-                <div>
+                <button
+                  onClick={() => leave(() => props.onNavigate('宠物好友'))}
+                >
                   <strong>{props.friends}</strong>
                   <span>宠物好友</span>
-                </div>
-                <div>
+                </button>
+                <button
+                  onClick={() => leave(() => props.onNavigate('陪伴日历'))}
+                >
                   <strong>{props.walks}</strong>
                   <span>一起出门</span>
-                </div>
+                </button>
+                <button
+                  onClick={() => {
+                    setCollection('地点');
+                    setView('collections');
+                  }}
+                >
+                  <strong>{props.places.length + props.posts.length}</strong>
+                  <span>我的收藏</span>
+                </button>
+              </div>
+              <div className="account-meet-tools">
+                <button
+                  className="account-scan-entry"
+                  onClick={() => setView('scan')}
+                >
+                  <ScanLine size={30} />
+                  <strong>扫一扫</strong>
+                  <span>
+                    见面了，碰个爪 <ChevronRight size={14} />
+                  </span>
+                </button>
+                <button
+                  className="account-code-entry"
+                  onClick={() => setView('mycode')}
+                >
+                  <QrCode size={30} />
+                  <strong>我的碰爪码</strong>
+                  <span>
+                    让新朋友认识它 <ChevronRight size={14} />
+                  </span>
+                </button>
+              </div>
+              <div className="account-section-heading">
+                <h3>我的出门生活</h3>
+                <Footprints size={18} />
               </div>
               <div className="account-menu-group">
                 <MenuRow
-                  icon={<PawPrint size={21} />}
-                  title="宠物档案"
-                  detail={`${props.pet.name} · ${props.pet.breed}`}
-                  onClick={() => leave(props.onEdit)}
+                  icon={<UsersRound size={21} />}
+                  title="我的约遛"
+                  detail={
+                    props.plans.length
+                      ? `${props.plans.length} 个接下来的约定`
+                      : '和宠物朋友，约好下一次'
+                  }
+                  onClick={() => setView('plans')}
                 />
                 <MenuRow
                   icon={<Bookmark size={21} />}
                   title="我的收藏"
-                  detail={`${props.places.length} 个地点 · ${props.posts.length} 篇帖子`}
+                  detail="想去的地点，喜欢的日常"
                   onClick={() => {
                     setCollection('地点');
                     setView('collections');
@@ -167,26 +266,74 @@ export default function AccountMenu(props: Props) {
                 <MenuRow
                   icon={<CalendarDays size={21} />}
                   title="陪伴日历"
-                  detail="遛弯、日常与下一次约定"
+                  detail="记住每一次一起出门"
                   onClick={() => leave(() => props.onNavigate('陪伴日历'))}
                 />
               </div>
-              <div className="account-menu-group">
-                <MenuRow
-                  icon={<Settings2 size={21} />}
-                  title="设置"
-                  detail="遛弯偏好与隐私"
-                  onClick={() => setView('settings')}
-                />
-                <MenuRow
-                  icon={<Info size={21} />}
-                  title="关于碰爪"
-                  onClick={() => setView('about')}
-                />
+              <div className="account-utility-links">
+                <button
+                  onClick={() => {
+                    setPrivacyBack('menu');
+                    setView('privacy');
+                  }}
+                >
+                  <ShieldCheck size={18} />
+                  隐私与权限
+                </button>
+                <button onClick={() => setView('about')}>
+                  <Info size={18} />
+                  关于碰爪
+                </button>
               </div>
-              <p className="account-footer-note">让毛孩子的世界，大一点。</p>
+              <p className="account-footer-note">碰个爪，下次一起走。</p>
             </>
           )}
+          {view === 'scan' && (
+            <PetScanner
+              onRecognized={(id) => leave(() => props.onPet(id))}
+              onMyCode={() => setView('mycode')}
+            />
+          )}
+          {view === 'mycode' && (
+            <PetCodeCard name={props.pet.name} breed={props.pet.breed} />
+          )}
+          {view === 'plans' &&
+            (props.plans.length ? (
+              <div className="account-plans">
+                {props.plans.map((plan) => (
+                  <button
+                    key={plan.id}
+                    onClick={() => leave(() => props.onInvitation(plan.id))}
+                  >
+                    <span className="account-plan-status">{plan.status}</span>
+                    <h3>{plan.place}</h3>
+                    <p>
+                      {plan.friend} ·{' '}
+                      {new Date(plan.date).toLocaleString('zh-CN', {
+                        month: 'long',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })}
+                    </p>
+                    <span>
+                      查看约遛详情 <ChevronRight size={16} />
+                    </span>
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <div className="account-empty">
+                <UsersRound size={34} />
+                <h3>一起走走，从一个约定开始</h3>
+                <p>和好友约好时间、地点，下一次出门就有伴了。</p>
+                <button
+                  onClick={() => leave(() => props.onNavigate('宠物好友'))}
+                >
+                  看看宠物好友 <ChevronRight size={16} />
+                </button>
+              </div>
+            ))}
           {view === 'settings' && (
             <>
               <p className="account-section-label">遛弯偏好</p>
@@ -227,7 +374,10 @@ export default function AccountMenu(props: Props) {
                       ? '本次地点对好友可见'
                       : '当前未共享地点'
                   }
-                  onClick={() => setView('privacy')}
+                  onClick={() => {
+                    setPrivacyBack('settings');
+                    setView('privacy');
+                  }}
                 />
               </div>
               <p className="account-local-note">
@@ -368,6 +518,7 @@ export default function AccountMenu(props: Props) {
             </div>
           )}
         </div>
+        <div className="account-home-indicator" aria-hidden="true" />
       </SheetContent>
     </Sheet>
   );
