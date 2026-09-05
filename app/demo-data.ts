@@ -171,6 +171,8 @@ export const seedPosts: Post[] = [
 ];
 export type ChatMessage = { id: string; text: string; mine: boolean };
 export type Invitation = {
+  inviterName?: string;
+  sourcePostId?: string;
   id: string;
   friend: string;
   place: string;

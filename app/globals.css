@@ -4008,16 +4008,60 @@ body {
 .real-place-card > .row {
   justify-content: space-between;
 }
-.curated-guide { margin-top: 12px; font-size: 14px; line-height: 1.75; color: #56614e; }
-.curated-guide p { margin: 10px 0; }
-.curated-tags { display: flex; flex-wrap: wrap; gap: 6px; }
-.curated-tags span { background: #edf2e6; border-radius: 6px; padding: 3px 8px; }
-.curated-scope { background: #f7f0df; color: #745e32; padding: 10px 12px; border-radius: 10px; }
-.curated-guide summary { cursor: pointer; min-height: 44px; padding: 10px 0; font-weight: 600; color: #3f633a; }
-.curated-guide ul { padding-left: 20px; list-style: disc; }
-.curated-guide a { display: block; color: #3f633a; text-decoration: underline; text-underline-offset: 3px; padding: 7px 0; overflow-wrap: anywhere; }
-.curated-check { color: #777767; }
-.curated-list-tag { display: block; font-size: 14px; font-style: normal; color: #58734b; margin-top: 6px; }
+.curated-guide {
+  margin-top: 12px;
+  font-size: 14px;
+  line-height: 1.75;
+  color: #56614e;
+}
+.curated-guide p {
+  margin: 10px 0;
+}
+.curated-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.curated-tags span {
+  background: #edf2e6;
+  border-radius: 6px;
+  padding: 3px 8px;
+}
+.curated-scope {
+  background: #f7f0df;
+  color: #745e32;
+  padding: 10px 12px;
+  border-radius: 10px;
+}
+.curated-guide summary {
+  cursor: pointer;
+  min-height: 44px;
+  padding: 10px 0;
+  font-weight: 600;
+  color: #3f633a;
+}
+.curated-guide ul {
+  padding-left: 20px;
+  list-style: disc;
+}
+.curated-guide a {
+  display: block;
+  color: #3f633a;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  padding: 7px 0;
+  overflow-wrap: anywhere;
+}
+.curated-check {
+  color: #777767;
+}
+.curated-list-tag {
+  display: block;
+  font-size: 14px;
+  font-style: normal;
+  color: #58734b;
+  margin-top: 6px;
+}
 .real-place-card h2 {
   font-size: 23px;
   font-weight: 650;
@@ -4384,4 +4428,503 @@ body {
   transform: translateX(-50%);
   width: calc(100% - 32px) !important;
   max-width: 380px !important;
+}
+
+/* One compact mobile layout for all sections; independent of desktop viewport breakpoints. */
+.phone-app {
+  container-type: inline-size;
+}
+.phone-app *,
+.app-dialog * {
+  box-sizing: border-box;
+}
+.phone-app .app-main > *,
+.phone-app .content-page,
+.phone-app .surface,
+.phone-app .pet-home-grid > *,
+.phone-app .friends-page-grid > *,
+.phone-app .calendar-layout > * {
+  min-width: 0;
+  max-width: 100%;
+}
+.phone-app .app-header {
+  width: 100%;
+  padding-inline: 16px;
+  gap: 8px;
+}
+.phone-app .breadcrumb {
+  min-width: 0;
+}
+.phone-app .breadcrumb strong {
+  font-size: 17px;
+  white-space: nowrap;
+}
+.phone-app .header-right {
+  flex-shrink: 0;
+  gap: 4px;
+}
+.phone-app .header-right .avatar {
+  width: 32px;
+  height: 32px;
+  aspect-ratio: 1;
+  object-fit: cover;
+}
+.phone-app .demo-badge {
+  display: none;
+}
+.phone-app .content-page {
+  padding: 16px 16px 24px;
+}
+.phone-app .content-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.phone-app .content-heading > div {
+  min-width: 0;
+  flex: 1;
+}
+.phone-app .content-heading h1 {
+  font-size: 22px;
+  line-height: 1.35;
+  margin: 0;
+}
+.phone-app .content-heading p {
+  font-size: 14px;
+  line-height: 1.55;
+  margin-top: 6px;
+}
+.phone-app .content-heading > button {
+  flex-shrink: 0;
+  font-size: 14px;
+  margin: 0;
+  padding: 10px;
+}
+.phone-app .pet-home-grid,
+.phone-app .friends-page-grid,
+.phone-app .calendar-layout,
+.phone-app .moments-layout {
+  display: block;
+  width: 100%;
+}
+.phone-app .surface {
+  padding: 16px;
+  margin-bottom: 14px;
+  border-radius: 16px;
+}
+.phone-app .pet-passport {
+  grid-template-columns: minmax(0, 1fr) 96px;
+  padding: 16px;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.phone-app .pet-passport .mini-label {
+  display: none;
+}
+.phone-app .pet-passport h2 {
+  font-size: 30px;
+  line-height: 1.15;
+  margin: 0 0 8px;
+  overflow-wrap: anywhere;
+}
+.phone-app .pet-passport p {
+  font-size: 14px;
+  line-height: 1.55;
+}
+.phone-app .passport-photo {
+  width: 96px;
+  height: 96px;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: 24px;
+  border-width: 3px;
+  align-self: start;
+}
+.phone-app .pet-temper {
+  font-size: 13px;
+  padding: 5px 7px;
+  margin: 8px 0;
+  line-height: 1.5;
+}
+.phone-app .pet-passport .pet-bio {
+  max-width: none;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.phone-app .pet-passport .text-link {
+  min-height: 40px;
+  font-size: 14px;
+  margin-top: 4px;
+}
+.phone-app .passport-stats {
+  gap: 8px;
+  margin-top: 0;
+}
+.phone-app .passport-stats > div {
+  padding: 10px 6px;
+  text-align: center;
+}
+.phone-app .passport-stats strong {
+  font-size: 24px;
+  line-height: 1.2;
+}
+.phone-app .passport-stats span {
+  font-size: 13px;
+}
+.phone-app .care-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+.phone-app .care-grid button {
+  padding: 12px 3px;
+  gap: 8px;
+}
+.phone-app .care-grid button svg {
+  width: 22px;
+  height: 22px;
+}
+.phone-app .care-grid strong {
+  font-size: 14px;
+}
+.phone-app .care-grid small {
+  font-size: 12px;
+}
+.phone-app .care-grid small svg {
+  display: none;
+}
+.phone-app .section-title {
+  margin-bottom: 12px;
+  gap: 6px;
+}
+.phone-app .section-title h3 {
+  font-size: 16px;
+}
+.phone-app .section-title > span {
+  display: none;
+}
+.phone-app .history-row,
+.phone-app .care-log {
+  padding: 10px 0;
+}
+.phone-app .history-row p,
+.phone-app .care-log span {
+  font-size: 13px;
+}
+.phone-app .network-card {
+  padding: 14px;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.phone-app .network-photo {
+  width: 72px;
+  height: 72px;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: 18px;
+}
+.phone-app .friend-toolbar {
+  gap: 8px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+.phone-app .segments {
+  display: flex;
+  width: 100%;
+  gap: 3px !important;
+}
+.phone-app .segments [data-slot='tabs-trigger'] {
+  flex: 1;
+  min-width: 0;
+  font-size: 14px;
+  padding: 10px 5px !important;
+}
+.phone-app .moment {
+  padding: 16px;
+  margin-bottom: 14px;
+}
+.phone-app .moment-photo {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;
+  max-height: 290px;
+  object-fit: cover;
+  border-radius: 12px;
+}
+.phone-app .moment-text h3 {
+  font-size: 17px;
+  line-height: 1.5;
+}
+.phone-app .moment-text p {
+  font-size: 15px;
+  line-height: 1.65;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.phone-app .moment footer {
+  flex-wrap: wrap;
+  gap: 10px;
+  font-size: 13px;
+}
+.phone-app .moment footer > span {
+  flex-basis: 100%;
+}
+.phone-app .calendar-grid {
+  gap: 5px;
+}
+.phone-app .calendar-grid button {
+  height: 42px;
+  min-width: 0;
+  font-size: 15px;
+}
+.phone-app .home-walk-note {
+  padding: 16px;
+}
+.phone-app .home-walk-note h3 {
+  font-size: 18px;
+  margin: 8px 0;
+}
+.phone-app .home-walk-note p {
+  font-size: 14px;
+  line-height: 1.65;
+}
+.real-map-stage {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  contain: paint;
+}
+.amap-surface {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+.phone-app .real-map-stage {
+  height: 280px;
+}
+.phone-app .phone-map-sheet {
+  padding: 0 16px 18px;
+}
+.place-sheet-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  position: sticky;
+  top: 48px;
+  z-index: 34;
+  background: #fffdf7;
+  padding: 4px 0;
+  border-bottom: 1px solid #ece9df;
+  margin-bottom: 12px;
+}
+.place-sheet-toolbar button {
+  min-height: 44px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #476b3f;
+}
+.place-sheet-toolbar strong {
+  font-size: 15px;
+}
+.phone-app .real-place-card h2 {
+  font-size: 21px;
+  line-height: 1.4;
+}
+.phone-app .real-place-actions {
+  margin-top: 14px;
+}
+.curated-guide {
+  font-size: 14px;
+  line-height: 1.65;
+}
+.curated-guide .text-link {
+  width: 100%;
+  justify-content: center;
+  min-height: 44px;
+}
+.place-entry-rules h3 {
+  font-size: 16px;
+  margin-top: 12px;
+}
+.invite-card-open {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border-radius: 8px;
+}
+.invite-card-open:hover {
+  background: #f0e8d340;
+}
+.invite-detail-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 14px;
+  color: #557343;
+  padding-top: 12px;
+}
+.invitation-detail h3 {
+  font-size: 21px;
+  line-height: 1.4;
+  margin: 14px 0 8px;
+}
+.invitation-detail p {
+  font-size: 14px;
+  line-height: 1.6;
+}
+.invitation-status {
+  color: #426437;
+  background: #edf2e7;
+  border-radius: 7px;
+  padding: 5px 9px;
+  font-size: 14px;
+}
+.invitation-detail dl {
+  margin: 18px 0;
+}
+.invitation-detail dl > div {
+  display: grid;
+  grid-template-columns: 70px minmax(0, 1fr);
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid #eae7dd;
+  font-size: 14px;
+}
+.invitation-detail dt {
+  color: #797665;
+}
+.invitation-detail dd {
+  overflow-wrap: anywhere;
+}
+.invitation-detail > button {
+  margin-top: 10px;
+}
+.navigation-preview {
+  display: grid;
+  gap: 14px;
+  font-size: 14px;
+  line-height: 1.6;
+}
+.navigation-destination {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 14px;
+  background: #f0f3e9;
+  border-radius: 12px;
+}
+.navigation-destination > svg {
+  flex-shrink: 0;
+}
+.navigation-destination strong {
+  font-size: 17px;
+}
+.navigation-destination p {
+  margin-top: 6px;
+}
+.navigation-preview input {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #dedccd;
+  border-radius: 8px;
+  margin-top: 6px;
+  font-size: 14px;
+}
+.navigation-modes {
+  display: flex;
+  gap: 8px;
+}
+.navigation-modes button {
+  flex: 1;
+  padding: 12px;
+  border: 1px solid #dce1d3;
+  border-radius: 10px;
+}
+.navigation-modes button[aria-pressed='true'] {
+  color: #385730;
+  background: #e5efda;
+  border-color: #78976b;
+}
+.navigation-preview output {
+  background: #f4ecd9;
+  padding: 10px;
+  border-radius: 8px;
+}
+.post-person {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.post-person .avatar {
+  width: 42px;
+  height: 42px;
+  object-fit: cover;
+  aspect-ratio: 1;
+}
+.post-person p {
+  font-size: 13px;
+  margin-top: 4px;
+  color: #7b7968;
+}
+.app-dialog .post-detail > img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;
+  max-height: 300px;
+  object-fit: cover;
+}
+.post-walk-invite {
+  margin: 16px 0;
+  background: #edf2e7;
+  padding: 14px;
+  border-radius: 12px;
+}
+.post-walk-invite strong {
+  font-size: 16px;
+}
+.post-walk-invite p {
+  font-size: 14px;
+  margin: 6px 0 12px;
+}
+.post-walk-invite > div {
+  display: flex;
+  gap: 8px;
+}
+.post-walk-invite button {
+  flex: 1;
+  padding: 10px;
+}
+.app-dialog {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.app-dialog h2 {
+  padding-right: 22px;
+  font-size: 21px;
+  line-height: 1.4;
+}
+.app-dialog .pet-cover {
+  height: auto;
+  aspect-ratio: 4 / 3;
+  max-height: 250px;
+  object-fit: cover;
+}
+@container (max-width: 370px) {
+  .phone-app .content-heading {
+    flex-wrap: wrap;
+  }
+  .phone-app .pet-passport {
+    grid-template-columns: minmax(0, 1fr) 76px;
+  }
+  .phone-app .passport-photo {
+    width: 76px;
+    height: 76px;
+  }
+  .phone-app .care-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }

@@ -65,7 +65,9 @@ import {
 import { MemoryEditor, PlaceContribution } from './walk-extras';
 import MobileMap from './mobile-map';
 import DevicePreview, { DeviceStatusBar } from './device-preview';
-import { isLocated, amapNavigation } from '@/lib/amap-client';
+import { isLocated } from '@/lib/amap-client';
+import { NavigationOptions } from './navigation-preview';
+import { postDistance } from './social-details';
 
 type State = {
   legacy: DemoState;
@@ -198,6 +200,8 @@ export default function Home() {
   const [note, setNote] = useState('');
   const [chat, setChat] = useState('');
   const [inviteDate, setInviteDate] = useState('');
+  const [activeInvitationId, setActiveInvitationId] = useState('');
+  const [inviteSource, setInviteSource] = useState('');
   const [draft, setDraft] = useState('');
   const [draftTitle, setDraftTitle] = useState('');
   const [draftPhoto, setDraftPhoto] = useState(photos.corgi);
@@ -286,6 +290,12 @@ export default function Home() {
   const atPlace = live.filter((p) => p.placeId === place.id);
   const petLive = live.find((p) => p.petId === pet.id);
   const post = data.posts.find((p) => p.id === postId);
+  const activeInvitation = data.invitations.find(
+    (i) => i.id === activeInvitationId,
+  );
+  const invitationPlace = walkPlaces.find(
+    (p) => p.id === activeInvitation?.place,
+  );
   const isBuddy = state.buddyIds.includes(pet.id);
   const update = (fn: (d: DemoState) => DemoState) =>
     setState((s) => ({ ...s, legacy: fn(s.legacy) }));
@@ -312,14 +322,6 @@ export default function Home() {
   }
   function savePlace(id: string) {
     update((d) => ({ ...d, placeSaved: toggleItem(d.placeSaved, id) }));
-  }
-  function begin() {
-    if (walking) {
-      setModal('walk');
-      return;
-    }
-    setPrivacy('private');
-    setModal('start');
   }
   function startWalk() {
     const t = Date.now();
@@ -388,6 +390,7 @@ export default function Home() {
     notify(`${pet.name}成为${data.pet.name}的好友啦！`);
   }
   function openInvite() {
+    setInviteSource('');
     setNote('');
     const d = new Date(Date.now() + 86400000);
     d.setHours(17, 0, 0, 0);
@@ -399,7 +402,10 @@ export default function Home() {
     setModal('invite');
   }
   function sendInvite() {
-    if (new Date(inviteDate).getTime() <= Date.now() || !inviteDate) {
+    if (
+      !Number.isFinite(new Date(inviteDate).getTime()) ||
+      new Date(inviteDate).getTime() <= Date.now()
+    ) {
       notify('请选择未来的约遛时间。');
       return;
     }
@@ -411,6 +417,8 @@ export default function Home() {
           friend: activePet,
           place: selected,
           date: inviteDate,
+          inviterName: data.pet.name + '的主人',
+          sourcePostId: inviteSource || undefined,
           note,
           status: '待回应',
         },
@@ -568,26 +576,38 @@ export default function Home() {
     const expired = new Date(inv.date).getTime() <= now;
     return (
       <div className="invite-card" key={inv.id}>
-        <div className="row">
-          <Footprints size={18} />
-          <strong>下次一起遛</strong>
-          <span className="status">
-            {expired && inv.status === '待回应' ? '已过期' : inv.status}
+        <button
+          className="invite-card-open"
+          aria-label="查看约遛详情"
+          onClick={() => {
+            setActiveInvitationId(inv.id);
+            setModal('invitation-detail');
+          }}
+        >
+          <div className="row">
+            <Footprints size={18} />
+            <strong>下次一起遛</strong>
+            <span className="status">
+              {expired && inv.status === '待回应' ? '已过期' : inv.status}
+            </span>
+          </div>
+          <h4>
+            {walkPlaces.find((p) => p.id === inv.place)?.name || '演示地点'}
+          </h4>
+          <p>
+            {petNetwork.find((p) => p.id === inv.friend)?.name} ·{' '}
+            {new Date(inv.date).toLocaleString('zh-CN', {
+              month: 'long',
+              day: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
+            })}
+          </p>
+          {inv.note && <p>{inv.note}</p>}
+          <span className="invite-detail-link">
+            查看地点、日期与邀约人 <ChevronRight size={16} />
           </span>
-        </div>
-        <h4>
-          {walkPlaces.find((p) => p.id === inv.place)?.name || '演示地点'}
-        </h4>
-        <p>
-          {petNetwork.find((p) => p.id === inv.friend)?.name} ·{' '}
-          {new Date(inv.date).toLocaleString('zh-CN', {
-            month: 'long',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-          })}
-        </p>
-        {inv.note && <p>{inv.note}</p>}
+        </button>
         {inv.status === '待回应' && !expired && (
           <div className="simulate">
             <span>模拟好友回应</span>
@@ -1150,7 +1170,7 @@ export default function Home() {
                           <footer>
                             <span>
                               <MapPin size={14} />
-                              {p.city}
+                              {postDistance(p)}
                             </span>
                             <button
                               className={
@@ -1470,6 +1490,7 @@ export default function Home() {
                 walk: '这一次，慢慢走',
                 pet: pet.name + '的宠物名片',
                 invite: '约好下一次散步',
+                'invitation-detail': '约遛详情',
                 chat: pet.name + '的铲屎官',
                 edit: '编辑宠物档案',
                 publish: '记录一件小事',
@@ -1638,73 +1659,92 @@ export default function Home() {
                 </p>
                 <button
                   className="primary full-width"
-                  onClick={() => {
-                    const url = amapNavigation(place);
-                    if (url) window.open(url, '_blank', 'noopener,noreferrer');
-                    else setModal('route');
-                  }}
+                  onClick={() => setModal('route')}
                 >
                   <Navigation size={17} />
-                  {isLocated(place) ? '在高德查看路线' : '查看演示流程'}
+                  怎么走
                 </button>
               </div>
             )}
             {modal === 'route' && (
-              <div className="route-detail">
-                <div className="destination">
-                  <MapPin size={24} />
+              <NavigationOptions
+                key={place.id}
+                place={place}
+                onClose={() => setModal('place')}
+              />
+            )}
+            {modal === 'invitation-detail' && activeInvitation && (
+              <div className="invitation-detail">
+                <span className="invitation-status">
+                  {activeInvitation.status}
+                </span>
+                <h3>{invitationPlace?.name || '地点信息暂不可用'}</h3>
+                <p>{invitationPlace?.area}</p>
+                <dl>
                   <div>
-                    <h3>{place.name}</h3>
-                    <p>{place.area}</p>
-                  </div>
-                  <span>{place.distance}</span>
-                </div>
-                <div className="route-steps">
-                  <div>
-                    <i />
-                    <span>
-                      社区出发点<small>当前为朝阳望京演示区域</small>
-                    </span>
-                  </div>
-                  <div>
-                    <Footprints size={16} />
-                    <span>
-                      {place.minutes
-                        ? `步行约 ${place.minutes} 分钟`
-                        : '步行时间待核实'}
-                      <small>{place.route}</small>
-                    </span>
+                    <dt>见面日期</dt>
+                    <dd>
+                      {new Date(activeInvitation.date).toLocaleDateString(
+                        'zh-CN',
+                        {
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric',
+                          weekday: 'long',
+                        },
+                      )}
+                    </dd>
                   </div>
                   <div>
-                    <MapPin size={16} />
-                    <span>
-                      {place.name}
-                      <small>
-                        {atPlace.length
-                          ? atPlace
-                              .map(
-                                (l) =>
-                                  petNetwork.find((p) => p.id === l.petId)
-                                    ?.name,
-                              )
-                              .join('、') + '正在这里遛'
-                          : '去找一片喜欢的风景'}
-                      </small>
-                    </span>
+                    <dt>见面时间</dt>
+                    <dd>
+                      {new Date(activeInvitation.date).toLocaleTimeString(
+                        'zh-CN',
+                        { hour: '2-digit', minute: '2-digit' },
+                      )}
+                    </dd>
                   </div>
-                </div>
-                <div className="gentle-note">
-                  <Leaf size={18} />
-                  <p>
-                    自己过去就好。查看地点和路线不会通知好友，也不会开启位置共享。
-                  </p>
-                </div>
-                <p className="demo-footnote">
-                  本页为路线流程演示，未接入地图导航。
-                </p>
-                <button className="primary full-width" onClick={begin}>
-                  <Check size={18} />
-                  演示：已到达，开始遛弯
+                  <div>
+                    <dt>邀约人</dt>
+                    <dd>
+                      {activeInvitation.inviterName || data.pet.name + '的主人'}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>受邀伙伴</dt>
+                    <dd>
+                      {petNetwork.find((p) => p.id === activeInvitation.friend)
+                        ?.name || '宠物好友'}
+                      和TA的主人
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>邀约留言</dt>
+                    <dd>{activeInvitation.note || '一起带毛孩子散散步。'}</dd>
+                  </div>
+                </dl>
+                <p className="demo-footnote">演示邀约，仅保存在当前浏览器。</p>
+                {invitationPlace && (
+                  <button
+                    className="primary full-width"
+                    onClick={() => showPlace(invitationPlace.id)}
+                  >
+                    查看具体地点 <MapPin size={17} />
+                  </button>
+                )}
+                {activeInvitation.sourcePostId && (
+                  <button
+                    className="secondary full-width"
+                    onClick={() => {
+                      setPostId(activeInvitation.sourcePostId!);
+                      setModal('post');
+                    }}
+                  >
+                    查看发起邀约的帖子
+                  </button>
+                )}
+                <button className="text-link" onClick={() => setModal('')}>
+                  返回
                 </button>
               </div>
             )}
@@ -1966,7 +2006,10 @@ export default function Home() {
                   <SelectOne
                     value={pet.name}
                     items={petNetwork
-                      .filter((p) => state.buddyIds.includes(p.id))
+                      .filter(
+                        (p) =>
+                          state.buddyIds.includes(p.id) || p.id === activePet,
+                      )
                       .map((p) => p.name)}
                     label="选择宠物好友"
                     onChange={(v) =>
@@ -2116,6 +2159,27 @@ export default function Home() {
             )}
             {modal === 'post' && post && (
               <div className="post-detail">
+                <div className="post-person">
+                  <Photo
+                    src={
+                      post.pet === 'me'
+                        ? photos.corgi
+                        : photos[
+                            petNetwork.find((p) => p.id === post.pet)?.photo ||
+                              'corgi'
+                          ]
+                    }
+                    className="avatar"
+                  />
+                  <div>
+                    <strong>
+                      {post.pet === 'me' ? data.pet.name : post.author}的日常
+                    </strong>
+                    <p>
+                      {post.time} · {postDistance(post)}
+                    </p>
+                  </div>
+                </div>
                 <h3>{post.title}</h3>
                 <p>{post.body}</p>
                 <Photo src={post.image} alt={post.title} />
@@ -2148,6 +2212,35 @@ export default function Home() {
                     {data.saved.includes(post.id) ? '已收藏' : '收藏'}
                   </button>
                 </div>
+                {post.pet !== 'me' &&
+                  petNetwork.some((p) => p.id === post.pet) && (
+                    <div className="post-walk-invite">
+                      <strong>下次，带毛孩子一起走走</strong>
+                      <p>和{post.author}的主人选个地点、约个时间。</p>
+                      <div>
+                        <button
+                          className="primary"
+                          onClick={() => {
+                            setActivePet(post.pet);
+                            openInvite();
+                            setInviteSource(post.id);
+                            setSelected(realPlaces[0].id);
+                          }}
+                        >
+                          邀请一起遛 <Footprints size={17} />
+                        </button>
+                        <button
+                          className="secondary"
+                          onClick={() => {
+                            setActivePet(post.pet);
+                            setModal('chat');
+                          }}
+                        >
+                          聊一聊 <MessageCircle size={17} />
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 <h4>朋友们的话</h4>
                 {(data.comments[post.id] || []).map((c, i) => (
                   <p className="comment-row" key={i}>

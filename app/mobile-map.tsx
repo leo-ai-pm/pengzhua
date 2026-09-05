@@ -8,7 +8,6 @@ import {
   Plus,
   Minus,
   Bookmark,
-  Navigation,
   Footprints,
   ChevronRight,
   X,
@@ -21,16 +20,15 @@ import {
   loadAMap,
   fromPOI,
   isLocated,
-  amapNavigation,
   type AMapSDK,
   type MapInstance,
   type Marker,
   type Coordinates,
-  type Walking,
 } from '@/lib/amap-client';
 import { type Place, type Presence, petNetwork } from './walk-model';
 import { photos } from './demo-data';
 import { beijingPlaces } from './beijing-places';
+import NavigationPreview from './navigation-preview';
 
 type Props = {
   places: Place[];
@@ -61,9 +59,7 @@ export default function MobileMap({
   const container = useRef<HTMLDivElement>(null);
   const map = useRef<MapInstance | null>(null);
   const sdk = useRef<AMapSDK | null>(null);
-  const routeService = useRef<Walking | null>(null);
   const request = useRef(0);
-  const routeRequest = useRef(0);
   const [status, setStatus] = useState<
     'loading' | 'missing' | 'ready' | 'error'
   >('loading');
@@ -74,18 +70,22 @@ export default function MobileMap({
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState('');
   const [position, setPosition] = useState<Coordinates | null>(null);
-  const [route, setRoute] = useState<{
-    placeId: string;
-    distance: number;
-    time: number;
-    steps: string[];
-  } | null>(null);
-  const [routing, setRouting] = useState(false);
   const [locating, setLocating] = useState(false);
   const [chosen, setChosen] = useState<Place | null>(
     () => places.find((p) => p.id === selected && isLocated(p)) || null,
   );
   const [expanded, setExpanded] = useState(false);
+  const [guideExpanded, setGuideExpanded] = useState(false);
+  function collapseGuide() {
+    setGuideExpanded(false);
+    container.current?.closest('.app-main')?.scrollTo({ top: 0 });
+  }
+  function returnToList() {
+    setChosen(null);
+    setGuideExpanded(false);
+    setExpanded(true);
+    container.current?.closest('.app-main')?.scrollTo({ top: 0 });
+  }
   const callbacks = useRef({ onSelect });
   useEffect(() => {
     callbacks.current = { onSelect };
@@ -94,10 +94,8 @@ export default function MobileMap({
     let disposed = false;
     let ownedMap: MapInstance | null = null;
     let mapTimer: ReturnType<typeof setTimeout> | undefined;
-    const routeRef = routeService;
     const mapRef = map;
     const searchCounter = request;
-    const routeCounter = routeRequest;
     const abort = new AbortController();
     fetch('/api/map-config', { signal: abort.signal })
       .then((r) => {
@@ -140,10 +138,7 @@ export default function MobileMap({
       disposed = true;
       abort.abort();
       searchCounter.current++;
-      routeCounter.current++;
       clearTimeout(mapTimer);
-      routeRef.current?.clear();
-      routeRef.current = null;
       ownedMap?.destroy();
       mapRef.current = null;
     };
@@ -153,7 +148,9 @@ export default function MobileMap({
       ? places.filter((p) => saved.includes(p.id) && isLocated(p))
       : tab === '推荐'
         ? beijingPlaces
-        : tab === '宠物好友' ? [] : results;
+        : tab === '宠物好友'
+          ? []
+          : results;
   // Only actual coordinates enter the real map. Legacy sample places are never geocoded implicitly.
   const pointKey = JSON.stringify([...display, ...(chosen ? [chosen] : [])]);
   useEffect(() => {
@@ -171,9 +168,8 @@ export default function MobileMap({
         title: p.name,
       });
       marker.on('click', () => {
-        setRoute(null);
-        setRouting(false);
         setChosen(p);
+        setGuideExpanded(false);
         callbacks.current.onSelect(p);
         setExpanded(false);
       });
@@ -185,14 +181,9 @@ export default function MobileMap({
     if (status === 'ready' && tab === '推荐' && !chosen)
       map.current?.setFitView();
   }, [status, tab, chosen]);
-  useEffect(() => {
-    routeRequest.current++;
-    routeService.current?.clear();
-  }, [chosen?.id]);
   function choose(p: Place) {
-    setRoute(null);
-    setRouting(false);
     setChosen(p);
+    setGuideExpanded(false);
     onSelect(p);
     setExpanded(false);
     setMessage('');
@@ -282,52 +273,6 @@ export default function MobileMap({
       });
     });
   }
-  async function navigate() {
-    if (!chosen || !isLocated(chosen) || !sdk.current || !map.current) return;
-    const target = chosen;
-    const token = ++routeRequest.current;
-    setRouting(true);
-    setMessage('');
-    try {
-      const from = position || (await locate());
-      if (token !== routeRequest.current || !sdk.current || !map.current)
-        return;
-      routeService.current?.clear();
-      const service = new sdk.current.Walking({
-        map: map.current,
-        autoFitView: true,
-        hideMarkers: false,
-      });
-      routeService.current = service;
-      const timer = setTimeout(() => {
-        if (token === routeRequest.current) {
-          routeRequest.current++;
-          setRouting(false);
-          setMessage('路线请求超时，请重试。');
-          service.clear();
-        }
-      }, 15000);
-      service.search(from, target.location, (s, r) => {
-        clearTimeout(timer);
-        if (token !== routeRequest.current) return;
-        setRouting(false);
-        if (s === 'complete' && r.routes?.[0]) {
-          const item = r.routes[0];
-          setRoute({
-            placeId: target.id,
-            distance: item.distance,
-            time: item.time,
-            steps: (item.steps || []).map((x) => x.instruction),
-          });
-          setExpanded(false);
-        } else {
-          setMessage('暂未找到步行路线，可前往高德地图选择其他方式。');
-        }
-      });
-    } catch {
-      if (token === routeRequest.current) setRouting(false);
-    }
-  }
   const selectedPlace = chosen
     ? places.find((p) => p.id === chosen.id) || chosen
     : null;
@@ -361,10 +306,13 @@ export default function MobileMap({
             key={t}
             aria-pressed={tab === t}
             onClick={() => {
+              request.current++;
+              setBusy(false);
+              setGuideExpanded(false);
               setTab(t);
               setExpanded(true);
               setChosen(null);
-              setRoute(null);
+
               setMessage('');
             }}
           >
@@ -415,14 +363,6 @@ export default function MobileMap({
                   <RefreshCw size={16} />
                   重新连接
                 </button>
-                <a
-                  href="https://www.amap.com/"
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  先打开高德地图
-                  <ChevronRight size={14} />
-                </a>
               </>
             )}
           </div>
@@ -471,14 +411,23 @@ export default function MobileMap({
         )}
       </div>
       <div className={'phone-map-sheet ' + (expanded ? 'expanded' : '')}>
-        <button
-          className="sheet-handle"
-          aria-label={expanded ? '收起地点列表' : '展开地点列表'}
-          aria-expanded={expanded}
-          onClick={() => setExpanded((v) => !v)}
-        >
-          <span />
-        </button>
+        <div className="place-sheet-toolbar">
+          {chosen ? (
+            <button onClick={returnToList}>← 返回地点列表</button>
+          ) : (
+            <strong>{tab === '推荐' ? '北京推荐' : tab}</strong>
+          )}
+          {chosen && (
+            <button
+              aria-expanded={guideExpanded}
+              onClick={() =>
+                guideExpanded ? collapseGuide() : setGuideExpanded(true)
+              }
+            >
+              {guideExpanded ? '收起详情 ↑' : '展开详情 ↓'}
+            </button>
+          )}
+        </div>
         {message && (
           <output className="map-feedback">
             {message}
@@ -522,7 +471,11 @@ export default function MobileMap({
             {selectedPlace && (
               <article className="real-place-card">
                 <div className="row">
-                  <span className="real-poi-tag">{selectedPlace.petGuide ? '北京精选 · 有携宠信息来源' : '真实地图地点'}</span>
+                  <span className="real-poi-tag">
+                    {selectedPlace.petGuide
+                      ? '北京精选 · 有携宠信息来源'
+                      : '真实地图地点'}
+                  </span>
                   <button
                     className="icon-btn"
                     aria-label="收藏地点"
@@ -546,50 +499,45 @@ export default function MobileMap({
                   {selectedPlace.petGuide
                     ? selectedPlace.petGuide.badge
                     : selectedPlace.contributed
-                    ? '宠友补充 · 携宠规则待核实'
-                    : '携宠规则待核实'}
+                      ? '宠友补充 · 携宠规则待核实'
+                      : '携宠规则待核实'}
                 </div>
-                {selectedPlace.petGuide && (
+                {guideExpanded && (
                   <div className="curated-guide">
                     <p>{selectedPlace.desc}</p>
-                    <div className="curated-tags">{selectedPlace.features.map((tag) => <span key={tag}>{tag}</span>)}</div>
-                    <p className="curated-scope">{selectedPlace.caution}</p>
-                    <details>
-                      <summary>入园条件、入口与信息来源</summary>
-                      <p><strong>入口</strong> {selectedPlace.petGuide.entry}</p>
-                      <p><strong>费用</strong> {selectedPlace.petGuide.fee}</p>
-                      <ul>{selectedPlace.petGuide.rules.map((rule) => <li key={rule}>{rule}</li>)}</ul>
-                      <p className="curated-check">资料核对：{selectedPlace.petGuide.checkedAt} · 未实地核验，出发前确认当日安排。</p>
-                      {selectedPlace.petGuide.sources.map((source) => (
-                        <a key={source.url} href={source.url} target="_blank" rel="noreferrer">
-                          {source.title}{source.publishedAt ? ` · ${source.publishedAt}` : ''} ↗
-                        </a>
+                    <div className="curated-tags">
+                      {selectedPlace.features.map((tag) => (
+                        <span key={tag}>{tag}</span>
                       ))}
-                    </details>
+                    </div>
+                    <p className="curated-scope">{selectedPlace.caution}</p>
+                    {selectedPlace.petGuide && (
+                      <div className="place-entry-rules">
+                        <h3>入园条件与入口</h3>
+                        <p>
+                          <strong>入口</strong> {selectedPlace.petGuide.entry}
+                        </p>
+                        <p>
+                          <strong>费用</strong> {selectedPlace.petGuide.fee}
+                        </p>
+                        <ul>
+                          {selectedPlace.petGuide.rules.map((rule) => (
+                            <li key={rule}>{rule}</li>
+                          ))}
+                        </ul>
+                        <p className="curated-check">
+                          资料核对：{selectedPlace.petGuide.checkedAt} ·
+                          未实地核验，出发前确认当日安排。
+                        </p>
+                      </div>
+                    )}
+                    <button className="text-link" onClick={collapseGuide}>
+                      收起详情 ↑
+                    </button>
                   </div>
                 )}
-                {route && route.placeId === selectedPlace.id && (
-                  <details className="walking-directions">
-                    <summary>
-                      步行约 {Math.ceil(route.time / 60)} 分钟 ·{' '}
-                      {(route.distance / 1000).toFixed(1)} km
-                    </summary>
-                    <ol>
-                      {route.steps.map((s, i) => (
-                        <li key={i}>{s}</li>
-                      ))}
-                    </ol>
-                  </details>
-                )}
                 <div className="real-place-actions">
-                  <button
-                    className="primary"
-                    disabled={status !== 'ready' || routing || locating}
-                    onClick={() => void navigate()}
-                  >
-                    <Navigation size={17} />
-                    {routing ? '正在规划' : '怎么走'}
-                  </button>
+                  <NavigationPreview place={selectedPlace} />
                   <button
                     className="secondary"
                     onClick={() => onStart(selectedPlace)}
@@ -599,13 +547,6 @@ export default function MobileMap({
                   </button>
                 </div>
                 <div className="real-place-links">
-                  <a
-                    href={amapNavigation(selectedPlace) || undefined}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    高德导航 ↗
-                  </a>
                   <button onClick={() => onContribute(selectedPlace)}>
                     补充携宠体验 <Plus size={14} />
                   </button>
@@ -615,10 +556,18 @@ export default function MobileMap({
             {(expanded || !selectedPlace) && (
               <div className="real-poi-list">
                 <h3>
-                  {tab === '推荐' ? '北京 · 先去这4处' : tab === '收藏' ? '收藏的真实地点' : '找一处今天想去的地方'}
+                  {tab === '推荐'
+                    ? '北京 · 先去这4处'
+                    : tab === '收藏'
+                      ? '收藏的真实地点'
+                      : '找一处今天想去的地方'}
                   {busy && <small>搜索中…</small>}
                 </h3>
-                {tab === '推荐' && <p className="map-sheet-note">首批宠物友好去处，以携犬场景为主。点开查看准入范围与来源，再带毛孩子出发。</p>}
+                {tab === '推荐' && (
+                  <p className="map-sheet-note">
+                    首批宠物友好去处，以携犬场景为主。点开查看入园要求，再带毛孩子出发。
+                  </p>
+                )}
                 {!display.length && !busy && (
                   <p className="map-sheet-note">
                     {tab === '收藏'
@@ -632,7 +581,12 @@ export default function MobileMap({
                     <span>
                       <strong>{p.name}</strong>
                       <small>{p.area}</small>
-                      {p.petGuide && <em className="curated-list-tag">{p.petGuide.badge} · {p.features[p.features.length - 1]}</em>}
+                      {p.petGuide && (
+                        <em className="curated-list-tag">
+                          {p.petGuide.badge} ·{' '}
+                          {p.features[p.features.length - 1]}
+                        </em>
+                      )}
                     </span>
                     <ChevronRight size={16} />
                   </button>
