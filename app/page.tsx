@@ -1,4 +1,5 @@
 'use client';
+import { withBeijingPlaces } from './beijing-places';
 /* eslint-disable next/no-img-element -- Sized CDN photos and device-local uploaded photos use ordinary image URLs. */
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import {
@@ -275,7 +276,8 @@ export default function Home() {
     return () => clearTimeout(id);
   }, [toast]);
   const data = state.legacy;
-  const walkPlaces = [...basePlaces, ...state.customPlaces];
+  const realPlaces = withBeijingPlaces(state.customPlaces);
+  const walkPlaces = [...basePlaces, ...realPlaces];
   const memoryWalk = state.history.find((w) => w.id === memoryId);
   const live = visiblePresences(state.presences, state.buddyIds, now);
   const walking = activeWalk(state.walk, now);
@@ -659,7 +661,7 @@ export default function Home() {
           </header>
           {section === '遛宠地图' ? (
             <MobileMap
-              places={state.customPlaces}
+              places={realPlaces}
               selected={selected}
               saved={data.placeSaved}
               live={live}

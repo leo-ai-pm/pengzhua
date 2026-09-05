@@ -30,6 +30,7 @@ import {
 } from '@/lib/amap-client';
 import { type Place, type Presence, petNetwork } from './walk-model';
 import { photos } from './demo-data';
+import { beijingPlaces } from './beijing-places';
 
 type Props = {
   places: Place[];
@@ -68,7 +69,7 @@ export default function MobileMap({
   >('loading');
   const [retry, setRetry] = useState(0);
   const [query, setQuery] = useState('');
-  const [tab, setTab] = useState('找地点');
+  const [tab, setTab] = useState('推荐');
   const [results, setResults] = useState<Place[]>([]);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState('');
@@ -150,7 +151,9 @@ export default function MobileMap({
   const display =
     tab === '收藏'
       ? places.filter((p) => saved.includes(p.id) && isLocated(p))
-      : results;
+      : tab === '推荐'
+        ? beijingPlaces
+        : tab === '宠物好友' ? [] : results;
   // Only actual coordinates enter the real map. Legacy sample places are never geocoded implicitly.
   const pointKey = JSON.stringify([...display, ...(chosen ? [chosen] : [])]);
   useEffect(() => {
@@ -178,6 +181,10 @@ export default function MobileMap({
     }
     return () => markers.forEach((marker) => marker.setMap(null));
   }, [pointKey, status]);
+  useEffect(() => {
+    if (status === 'ready' && tab === '推荐' && !chosen)
+      map.current?.setFitView();
+  }, [status, tab, chosen]);
   useEffect(() => {
     routeRequest.current++;
     routeService.current?.clear();
@@ -218,6 +225,7 @@ export default function MobileMap({
         const list = r.poiList.pois
           .filter((p) => p.location)
           .map(fromPOI)
+          .map((p) => beijingPlaces.find((seed) => seed.id === p.id) || p)
           .filter(isLocated);
         setResults(list);
         if (list.length) {
@@ -348,13 +356,16 @@ export default function MobileMap({
         </form>
       </div>
       <div className="map-mode-tabs">
-        {['找地点', '宠物好友', '收藏'].map((t) => (
+        {['推荐', '找地点', '宠物好友', '收藏'].map((t) => (
           <button
             key={t}
             aria-pressed={tab === t}
             onClick={() => {
               setTab(t);
               setExpanded(true);
+              setChosen(null);
+              setRoute(null);
+              setMessage('');
             }}
           >
             {t === '宠物好友' && <UsersRound size={15} />} {t}
@@ -511,7 +522,7 @@ export default function MobileMap({
             {selectedPlace && (
               <article className="real-place-card">
                 <div className="row">
-                  <span className="real-poi-tag">真实地图地点</span>
+                  <span className="real-poi-tag">{selectedPlace.petGuide ? '北京精选 · 有携宠信息来源' : '真实地图地点'}</span>
                   <button
                     className="icon-btn"
                     aria-label="收藏地点"
@@ -532,10 +543,31 @@ export default function MobileMap({
                 <p>{selectedPlace.area}</p>
                 <div className="real-pet-rule">
                   <Leaf size={16} />
-                  {selectedPlace.contributed
+                  {selectedPlace.petGuide
+                    ? selectedPlace.petGuide.badge
+                    : selectedPlace.contributed
                     ? '宠友补充 · 携宠规则待核实'
                     : '携宠规则待核实'}
                 </div>
+                {selectedPlace.petGuide && (
+                  <div className="curated-guide">
+                    <p>{selectedPlace.desc}</p>
+                    <div className="curated-tags">{selectedPlace.features.map((tag) => <span key={tag}>{tag}</span>)}</div>
+                    <p className="curated-scope">{selectedPlace.caution}</p>
+                    <details>
+                      <summary>入园条件、入口与信息来源</summary>
+                      <p><strong>入口</strong> {selectedPlace.petGuide.entry}</p>
+                      <p><strong>费用</strong> {selectedPlace.petGuide.fee}</p>
+                      <ul>{selectedPlace.petGuide.rules.map((rule) => <li key={rule}>{rule}</li>)}</ul>
+                      <p className="curated-check">资料核对：{selectedPlace.petGuide.checkedAt} · 未实地核验，出发前确认当日安排。</p>
+                      {selectedPlace.petGuide.sources.map((source) => (
+                        <a key={source.url} href={source.url} target="_blank" rel="noreferrer">
+                          {source.title}{source.publishedAt ? ` · ${source.publishedAt}` : ''} ↗
+                        </a>
+                      ))}
+                    </details>
+                  </div>
+                )}
                 {route && route.placeId === selectedPlace.id && (
                   <details className="walking-directions">
                     <summary>
@@ -583,9 +615,10 @@ export default function MobileMap({
             {(expanded || !selectedPlace) && (
               <div className="real-poi-list">
                 <h3>
-                  {tab === '收藏' ? '收藏的真实地点' : '找一处今天想去的地方'}
+                  {tab === '推荐' ? '北京 · 先去这4处' : tab === '收藏' ? '收藏的真实地点' : '找一处今天想去的地方'}
                   {busy && <small>搜索中…</small>}
                 </h3>
+                {tab === '推荐' && <p className="map-sheet-note">首批宠物友好去处，以携犬场景为主。点开查看准入范围与来源，再带毛孩子出发。</p>}
                 {!display.length && !busy && (
                   <p className="map-sheet-note">
                     {tab === '收藏'
@@ -599,6 +632,7 @@ export default function MobileMap({
                     <span>
                       <strong>{p.name}</strong>
                       <small>{p.area}</small>
+                      {p.petGuide && <em className="curated-list-tag">{p.petGuide.badge} · {p.features[p.features.length - 1]}</em>}
                     </span>
                     <ChevronRight size={16} />
                   </button>

@@ -4008,6 +4008,16 @@ body {
 .real-place-card > .row {
   justify-content: space-between;
 }
+.curated-guide { margin-top: 12px; font-size: 14px; line-height: 1.75; color: #56614e; }
+.curated-guide p { margin: 10px 0; }
+.curated-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.curated-tags span { background: #edf2e6; border-radius: 6px; padding: 3px 8px; }
+.curated-scope { background: #f7f0df; color: #745e32; padding: 10px 12px; border-radius: 10px; }
+.curated-guide summary { cursor: pointer; min-height: 44px; padding: 10px 0; font-weight: 600; color: #3f633a; }
+.curated-guide ul { padding-left: 20px; list-style: disc; }
+.curated-guide a { display: block; color: #3f633a; text-decoration: underline; text-underline-offset: 3px; padding: 7px 0; overflow-wrap: anywhere; }
+.curated-check { color: #777767; }
+.curated-list-tag { display: block; font-size: 14px; font-style: normal; color: #58734b; margin-top: 6px; }
 .real-place-card h2 {
   font-size: 23px;
   font-weight: 650;

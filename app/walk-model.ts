@@ -44,6 +44,15 @@ export type Place = {
   photoUrl?: string;
   location?: [number, number];
   source?: 'amap';
+  petGuide?: {
+    district: string;
+    badge: string;
+    fee: string;
+    entry: string;
+    rules: string[];
+    checkedAt: string;
+    sources: { title: string; url: string; publishedAt?: string }[];
+  };
 };
 export const walkPlaces: Place[] = [
   {
