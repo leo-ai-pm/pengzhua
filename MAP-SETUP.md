@@ -1,0 +1,24 @@
+# 启用项目的高德地图
+
+当前状态：已实现高德 JS API 2.0 接入、地点搜索、主动定位、步行路线与外部导航。尚未配置项目 Key，真实服务未完成联调。无 Key 时明确显示“真实地图等待启用”，不回退到手绘示意图。
+
+## 申请与配置
+
+1. 登录 [高德开放平台](https://console.amap.com/)，在应用管理中创建应用。
+2. 添加 Key，服务平台选择 **Web端（JS API）**；获取 Key 和对应的安全密钥。不要选择仅 Web 服务 API 类型的 Key。
+3. 按控制台要求配置本项目域名 `qunaliu-pet-community.ljhsmart1.chatgpt.site` 的使用限制。
+4. 开发时在本项目忽略提交的 `.env` 中填写 `AMAP_JSAPI_KEY`、`AMAP_SECURITY_JSCODE`，变量示例见 `.env.example`。线上填写同名的 Sites 环境变量，安全密钥必须设为 secret；配置完成后重新发布。
+5. 检查：北京真实底图 → 搜索具体公园 → 点击定位并授权 → 选择真实地点 → 步行路线 → 高德导航。再检查拒绝定位、无结果、超时、Key 错误和配额不足提示。
+
+不需要在聊天里公开密钥，也不要提交 `.env`。Key 通过 `/api/map-config` 提供给官方 SDK；安全密钥只在 Worker 的 `/_AMapService/*` 请求代理中添加。代理上游固定为高德官方域名。
+
+## 产品规则
+
+- 手机浏览器全宽；桌面浏览器居中显示 430px 的手机 H5，同一套导航和页面。
+- 北京作为初始视野；用户主动点击定位后才请求设备位置。定位结果只在当前页面用于找路，不自动启动社交共享。
+- 坐标来自高德 SDK，使用 GCJ-02；不把旧版模拟地点的百分比位置转换成经纬度。
+- 地图搜索结果标为“真实地图地点”，携宠政策独立标记“待核实”。普通公园 POI 不视作已确认宠物友好。
+- 地点贡献绑定选定的真实 POI 坐标，允许补充入口、照片和携宠体验；目前仅保存在本浏览器，未接入真实审核后台。
+- 旧版宠物朋友、聊天、地点共享仍是本地模拟；在“宠物好友”明确标注，不放到真实地图上。多用户同步与授权需要下一阶段后端接入。
+
+官方依据：[申请 JS API Key](https://lbs.amap.com/api/javascript-api-v2/prerequisites)、[安全密钥服务端代理](https://lbs.amap.com/api/javascript-api-v2/guide/abc/jscode)、[步行路线](https://lbs.amap.com/demo/javascript-api-v2/example/walking-route/walk-custom)、[导航 URI](https://developer.amap.com/api/uri-api/guide/travel/route)。

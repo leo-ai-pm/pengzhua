@@ -195,21 +195,17 @@ export function MemoryEditor({
 }
 export function PlaceContribution({
   onSave,
+  anchor,
 }: {
+  anchor?: Place;
   onSave: (place: Place) => void;
 }) {
-  const [name, setName] = useState('');
-  const [address, setAddress] = useState('');
-  const [kind, setKind] = useState<Place['kind']>('草地公园');
-  const [desc, setDesc] = useState('');
-  const [photo, setPhoto] = useState('');
+  const [name, setName] = useState(anchor?.name || '');
+  const [address, setAddress] = useState(anchor?.area || '');
+  const [kind, setKind] = useState<Place['kind']>(anchor?.kind || '草地公园');
+  const [desc, setDesc] = useState(anchor?.contributed ? anchor.desc : '');
+  const [photo, setPhoto] = useState(anchor?.photoUrl || '');
   const [features, setFeatures] = useState<string[]>(['全程牵绳']);
-  const [spot, setSpot] = useState(0);
-  const spots = [
-    { name: '望京街区', x: 22, y: 42 },
-    { name: '北小河沿线', x: 61, y: 55 },
-    { name: '社区周边', x: 40, y: 77 },
-  ];
   return (
     <form
       className="contribute-form"
@@ -217,9 +213,11 @@ export function PlaceContribution({
         e.preventDefault();
         if (!name.trim() || !address.trim() || !desc.trim()) return;
         onSave({
-          id: crypto.randomUUID(),
+          id: anchor?.id || crypto.randomUUID(),
           name: name.trim(),
-          area: '北京 · ' + address.trim(),
+          area: address.trim(),
+          location: anchor?.location,
+          source: anchor?.source,
           kind,
           desc: desc.trim(),
           features: features.length ? features : ['设施待核实'],
@@ -227,8 +225,8 @@ export function PlaceContribution({
           size: '待核实',
           distance: '待核实',
           minutes: 0,
-          x: spots[spot].x,
-          y: spots[spot].y,
+          x: 0,
+          y: 0,
           route: '尚未核实入口及步行路线。',
           photo: 'park',
           photoUrl: photo,
@@ -279,21 +277,9 @@ export function PlaceContribution({
           </SelectContent>
         </Select>
       </div>
-      <fieldset>
-        <legend>放在示意图的哪个区域</legend>
-        <div className="mood-options">
-          {spots.map((p, i) => (
-            <button
-              type="button"
-              key={p.name}
-              aria-pressed={spot === i}
-              onClick={() => setSpot(i)}
-            >
-              {p.name}
-            </button>
-          ))}
-        </div>
-      </fieldset>
+      <p className="demo-footnote">
+        已绑定所选高德地点的真实坐标。入口细节可在上方地址中补充。
+      </p>
       <fieldset>
         <legend>你看到的环境</legend>
         <div className="mood-options">
@@ -333,7 +319,7 @@ export function PlaceContribution({
       </label>
       <PhotoInput value={photo} onChange={setPhoto} />
       <p className="demo-footnote">
-        演示提交仅保存在此浏览器，以“待核实”显示。示意图选区不代表真实坐标。
+        体验仅保存在此浏览器，以“待核实”显示，不会自动认定此地点允许携宠。
       </p>
       <button type="submit" className="primary full-width">
         保存我的地点

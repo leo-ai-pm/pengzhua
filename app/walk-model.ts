@@ -42,6 +42,8 @@ export type Place = {
   quiet: boolean;
   contributed?: boolean;
   photoUrl?: string;
+  location?: [number, number];
+  source?: 'amap';
 };
 export const walkPlaces: Place[] = [
   {

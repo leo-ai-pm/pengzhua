@@ -2653,7 +2653,7 @@ h1 > span {
     padding: 30px 22px;
   }
 }
-@media (max-width: 760px) {
+@media (min-width: 0px) {
   .nav-rail {
     display: none !important;
   }
@@ -3350,7 +3350,7 @@ h1 > span {
   font-size: 16px;
 }
 
-@media (max-width: 760px) {
+@media (min-width: 0px) {
   .map-heading > div {
     min-width: 0;
   }
@@ -3618,7 +3618,7 @@ h1 > span {
   object-fit: cover;
   border-radius: 12px;
 }
-@media (max-width: 600px) {
+@media (min-width: 0px) {
   .mood-pair {
     grid-template-columns: 1fr;
   }
@@ -3629,5 +3629,545 @@ h1 > span {
   .memory-preview {
     gap: 10px;
     padding: 10px;
+  }
+}
+
+/* A mobile product delivered through the browser, including on desktop. */
+html {
+  background: #e9e8e3;
+}
+body {
+  margin: 0;
+  min-width: 320px;
+  background: #e9e8e3;
+  color: #383e32;
+}
+.phone-app {
+  width: 100%;
+  max-width: 430px;
+  min-height: 100dvh;
+  margin: 0 auto;
+  background: #faf9f4;
+  position: relative;
+  box-shadow:
+    0 0 0 1px #d9d7cc,
+    0 20px 80px #353a2812;
+}
+.phone-app .app-main {
+  width: 100%;
+  margin: 0;
+  min-width: 0;
+}
+.phone-app .app-header {
+  position: sticky;
+  top: 0;
+  z-index: 35;
+  height: 56px;
+  background: #fffdf7;
+  padding: 0 16px;
+}
+.phone-app .breadcrumb {
+  font-size: 14px;
+  gap: 5px;
+}
+.phone-app .breadcrumb > span {
+  display: none;
+}
+.phone-app .breadcrumb > svg {
+  display: none;
+}
+.phone-app .breadcrumb strong {
+  font-size: 18px;
+  color: #4f6542;
+}
+.phone-app .header-right {
+  gap: 8px;
+}
+.phone-app .demo-badge {
+  font-size: 12px;
+}
+.phone-app .mobile-nav {
+  max-width: 430px;
+  margin: 0 auto;
+  min-height: 72px;
+}
+.phone-app .mobile-nav button {
+  min-height: 48px;
+  min-width: 64px;
+  justify-content: center;
+}
+.phone-app .mobile-nav button span {
+  font-size: 12px;
+  color: #716e5d;
+}
+.phone-app .mobile-nav button.active span {
+  color: #4c693d;
+}
+.phone-app .content-page {
+  padding: 23px 16px 100px;
+}
+.phone-app .content-heading {
+  display: block;
+  position: relative;
+}
+.phone-app .content-heading > button {
+  margin: 12px 0 0;
+  font-size: 14px;
+}
+.phone-app .content-heading p,
+.phone-app .pet-passport p,
+.phone-app .pet-passport .pet-bio,
+.phone-app .network-info > p,
+.phone-app .buddy-text > span {
+  font-size: 14px;
+}
+.phone-app .content-heading .kicker {
+  display: none;
+}
+.phone-app .surface {
+  padding: 18px;
+}
+.phone-app .pet-passport {
+  padding: 22px 18px;
+  grid-template-columns: minmax(0, 1fr) 100px;
+}
+.phone-app .passport-photo {
+  width: 100px;
+}
+.phone-app .pet-passport h2 {
+  font-size: 36px;
+}
+.phone-app .care-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.phone-app .care-grid button {
+  padding: 17px;
+}
+.phone-app .care-grid strong {
+  font-size: 15px;
+}
+.phone-app .section-title h3 {
+  font-size: 17px;
+}
+.phone-app .section-title {
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.phone-app .history-row {
+  flex-wrap: wrap;
+}
+.phone-app .history-row strong {
+  font-size: 14px;
+}
+.phone-app .network-info {
+  min-width: 0;
+  flex: 1;
+}
+.phone-app .network-actions {
+  flex-wrap: wrap;
+}
+.phone-app .network-actions .primary,
+.phone-app .network-actions .secondary {
+  font-size: 14px;
+  min-height: 42px;
+}
+.phone-app button:focus-visible,
+.app-dialog button:focus-visible {
+  outline: 2px solid #527641;
+  outline-offset: 3px;
+}
+.app-dialog {
+  width: calc(100% - 16px) !important;
+  max-width: 414px !important;
+  padding: 24px 20px !important;
+  max-height: 90dvh;
+}
+.app-dialog .primary,
+.app-dialog .secondary {
+  font-size: 14px;
+  min-height: 44px;
+}
+.toast {
+  max-width: 398px !important;
+  width: calc(100% - 32px) !important;
+}
+.phone-map-page {
+  padding-bottom: 80px;
+}
+.map-search-bar {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin: 8px 12px 0;
+  background: #f0f1e9;
+  border: 1px solid #e2e4d8;
+  border-radius: 14px;
+  padding: 4px 11px;
+}
+.map-search-bar > span {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  flex-shrink: 0;
+  font-size: 14px;
+  color: #526646;
+}
+.map-search-bar form {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+}
+.map-search-bar input {
+  width: 100%;
+  min-width: 0;
+  font-size: 14px;
+  height: 43px;
+  background: transparent;
+  outline: none;
+}
+.map-search-bar form button {
+  padding: 10px;
+  color: #5e7551;
+}
+.map-mode-tabs {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 12px;
+}
+.map-mode-tabs > button {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 20px;
+  padding: 9px 13px;
+  font-size: 14px;
+  color: #777b6c;
+}
+.map-mode-tabs > button[aria-pressed='true'] {
+  background: #e7eddf;
+  color: #43613b;
+  font-weight: 650;
+}
+.map-mode-tabs > .walking-pill {
+  margin-left: auto;
+  background: #547642;
+  color: white;
+  font-size: 12px;
+  padding: 9px;
+}
+.real-map-stage {
+  position: relative;
+  height: clamp(300px, 50dvh, 460px);
+  background: #edf0e8;
+}
+.amap-surface {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.map-service-state {
+  position: absolute;
+  inset: 0;
+  background: #edf0e8;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 24px;
+  gap: 14px;
+}
+.map-state-icon {
+  width: 70px;
+  height: 70px;
+  display: grid;
+  place-items: center;
+  background: #e0e7d6;
+  color: #5c774a;
+  border-radius: 22px;
+}
+.map-service-state h2 {
+  font-size: 21px;
+  font-weight: 650;
+}
+.map-service-state p {
+  font-size: 14px;
+  line-height: 1.8;
+  color: #6b7561;
+  max-width: 315px;
+}
+.map-service-state .secondary {
+  font-size: 14px;
+  padding: 10px 16px;
+}
+.map-service-state > a {
+  display: flex;
+  align-items: center;
+  color: #577d42;
+  font-size: 14px;
+  gap: 6px;
+}
+.map-quick-search {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  display: flex;
+  gap: 7px;
+  z-index: 3;
+}
+.map-quick-search button {
+  background: #fffef8;
+  box-shadow: 0 2px 8px #22332215;
+  font-size: 13px;
+  padding: 9px 12px;
+  border-radius: 20px;
+}
+.real-map-tools {
+  position: absolute;
+  right: 12px;
+  bottom: 40px;
+  display: flex;
+  flex-direction: column;
+  background: #fffef9;
+  border-radius: 13px;
+  box-shadow: 0 2px 14px #22332218;
+  z-index: 3;
+}
+.real-map-tools button {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  color: #596d4a;
+}
+.real-map-tools button + button {
+  border-top: 1px solid #ecece1;
+}
+.map-origin-label {
+  position: absolute;
+  left: 10px;
+  top: 59px;
+  padding: 5px 9px;
+  background: #fffdf9e6;
+  color: #727665;
+  font-size: 12px;
+  z-index: 3;
+  border-radius: 6px;
+}
+.phone-map-sheet {
+  position: relative;
+  z-index: 5;
+  border-radius: 24px 24px 0 0;
+  background: #fffdf7;
+  border: 1px solid #e7e5d8;
+  border-bottom: 0;
+  margin-top: 0;
+  padding: 0 20px 24px;
+  box-shadow: 0 -3px 15px #38412d08;
+}
+.sheet-handle {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  height: 26px;
+  align-items: center;
+}
+.sheet-handle span {
+  width: 32px;
+  height: 4px;
+  border-radius: 4px;
+  background: #d8dacd;
+}
+.phone-map-sheet h3 {
+  font-size: 17px;
+  font-weight: 650;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+}
+.phone-map-sheet h3 small {
+  font-size: 12px;
+  font-weight: 400;
+  color: #8d917f;
+}
+.map-sheet-note {
+  font-size: 14px;
+  line-height: 1.8;
+  color: #858875;
+  margin: 10px 0 14px;
+}
+.real-poi-tag {
+  font-size: 12px;
+  color: #6e7e5e;
+}
+.real-place-card > .row {
+  justify-content: space-between;
+}
+.real-place-card h2 {
+  font-size: 23px;
+  font-weight: 650;
+  margin-top: 0;
+  overflow-wrap: anywhere;
+}
+.real-place-card > p {
+  font-size: 14px;
+  color: #7b806f;
+  line-height: 1.65;
+  margin-top: 5px;
+}
+.real-pet-rule {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  color: #9a8245;
+  margin-top: 12px;
+}
+.real-place-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 18px;
+}
+.real-place-actions button {
+  font-size: 15px;
+  padding: 13px 9px;
+}
+.real-place-links {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 13px;
+  color: #688057;
+  margin: 17px 0 4px;
+}
+.real-place-links button {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.real-poi-list {
+  margin-top: 17px;
+}
+.real-poi-list > button {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 16px 0;
+  text-align: left;
+  border-bottom: 1px solid #eeeee2;
+}
+.real-poi-list > button > svg {
+  color: #7e946d;
+  flex-shrink: 0;
+}
+.real-poi-list > button > span {
+  flex: 1;
+  min-width: 0;
+}
+.real-poi-list strong {
+  display: block;
+  font-size: 15px;
+  color: #424e37;
+}
+.real-poi-list small {
+  display: block;
+  font-size: 12px;
+  line-height: 1.6;
+  color: #939580;
+  margin-top: 4px;
+}
+.map-feedback {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  font-size: 14px;
+  color: #917944;
+  background: #f6efdb;
+  padding: 12px;
+  border-radius: 10px;
+  margin: 0 0 12px;
+  line-height: 1.6;
+}
+.map-feedback button {
+  flex-shrink: 0;
+  padding: 4px;
+}
+.map-friend-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  width: 100%;
+  text-align: left;
+  padding: 13px 0;
+  border-bottom: 1px solid #eeeade;
+}
+.map-friend-row img {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.map-friend-row span {
+  flex: 1;
+}
+.map-friend-row strong {
+  display: block;
+  font-size: 16px;
+}
+.map-friend-row small {
+  font-size: 12px;
+  color: #8d917c;
+}
+.walking-directions {
+  margin-top: 15px;
+  font-size: 14px;
+  background: #eef3e7;
+  padding: 12px 15px;
+  border-radius: 12px;
+  color: #4e6e3d;
+}
+.walking-directions summary {
+  cursor: pointer;
+}
+.walking-directions ol {
+  padding-left: 17px;
+  list-style: decimal;
+  margin-top: 10px;
+  max-height: 190px;
+  overflow: auto;
+}
+.walking-directions li {
+  margin-bottom: 8px;
+  line-height: 1.7;
+}
+.phone-map-page button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+@media (min-width: 600px) {
+  body {
+    padding: 18px 0;
+  }
+  .phone-app {
+    min-height: calc(100dvh - 36px);
+    border-radius: 24px;
+    overflow: clip;
+  }
+  .phone-app .mobile-nav {
+    border-radius: 0 0 24px 24px;
+    bottom: 18px;
+  }
+  .phone-app .app-header {
+    top: 0;
+  }
+  .real-map-stage {
+    height: clamp(300px, 47dvh, 440px);
   }
 }

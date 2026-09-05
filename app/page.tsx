@@ -1,12 +1,6 @@
 'use client';
 /* eslint-disable next/no-img-element -- Sized CDN photos and device-local uploaded photos use ordinary image URLs. */
-import {
-  useEffect,
-  useRef,
-  useState,
-  type CSSProperties,
-  type ReactNode,
-} from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import {
   PawPrint,
   MapPin,
@@ -14,13 +8,10 @@ import {
   UsersRound,
   House,
   BookOpen,
-  Search,
   ChevronRight,
   ArrowUpRight,
   ArrowLeft,
   Plus,
-  Minus,
-  LocateFixed,
   Eye,
   EyeOff,
   Bookmark,
@@ -32,18 +23,14 @@ import {
   MessageCircle,
   Send,
   Check,
-  X,
   Camera,
   CalendarDays,
   Settings2,
   Utensils,
-  Coffee,
   Navigation,
   Leaf,
-  CircleHelp,
   QrCode,
 } from 'lucide-react';
-import { Sidebar, SidebarProvider } from '@/components/ui/sidebar';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Dialog,
@@ -68,7 +55,6 @@ import {
   activeWalk,
   finishWalk,
   walkMinutes,
-  filterPlaces,
   type Walk,
   type Presence,
   type Visibility,
@@ -76,6 +62,8 @@ import {
 } from './walk-model';
 
 import { MemoryEditor, PlaceContribution } from './walk-extras';
+import MobileMap from './mobile-map';
+import { isLocated, amapNavigation } from '@/lib/amap-client';
 
 type State = {
   legacy: DemoState;
@@ -197,13 +185,10 @@ export default function Home() {
   const [now, setNow] = useState(0);
   const [ready, setReady] = useState(false);
   const [section, setSection] = useState('遛宠地图');
-  const [filter, setFilter] = useState('全部');
-  const [query, setQuery] = useState('');
   const [selected, setSelected] = useState('p1');
   const [modal, setModal] = useState('');
   const [activePet, setActivePet] = useState('doubao');
   const [toast, setToast] = useState('');
-  const [zoom, setZoom] = useState(1);
   const [friendTab, setFriendTab] = useState('正在遛弯');
   const [feedTab, setFeedTab] = useState('好友圈');
   const [privacy, setPrivacy] = useState<Visibility>('private');
@@ -293,13 +278,6 @@ export default function Home() {
   const memoryWalk = state.history.find((w) => w.id === memoryId);
   const live = visiblePresences(state.presences, state.buddyIds, now);
   const walking = activeWalk(state.walk, now);
-  const visiblePlaces = filterPlaces(
-    walkPlaces,
-    filter,
-    query,
-    data.placeSaved,
-    live,
-  );
   const place = walkPlaces.find((p) => p.id === selected)!;
   const pet = petNetwork.find((p) => p.id === activePet)!;
   const atPlace = live.filter((p) => p.placeId === place.id);
@@ -316,8 +294,11 @@ export default function Home() {
   }
   function showPlace(id: string) {
     setSelected(id);
-    setFilter('全部');
-    setQuery('');
+    const target = walkPlaces.find((p) => p.id === id);
+    if (target && !isLocated(target)) {
+      setModal('place');
+      return;
+    }
     go('遛宠地图');
   }
   function showPet(id: string) {
@@ -643,55 +624,7 @@ export default function Home() {
     );
   }
   return (
-    <SidebarProvider style={{ '--sidebar-width': '196px' } as CSSProperties}>
-      <Sidebar collapsible="none" className="nav-rail">
-        <button className="wordmark" onClick={() => go('遛宠地图')}>
-          <span>
-            <PawPrint size={25} />
-          </span>
-          去哪遛<small>pet & places</small>
-        </button>
-        <div className="rail-caption">让毛孩子的世界，大一点。</div>
-        <div className="pet-switch">
-          <Photo src={photos.corgi} alt={data.pet.name} className="avatar" />
-          <div>
-            <strong>{data.pet.name}</strong>
-            <small>我的快乐小短腿</small>
-          </div>
-          <PawPrint size={15} />
-        </div>
-        <nav aria-label="主要功能">
-          {sections.map(({ name, icon: Icon }) => (
-            <button
-              className={section === name ? 'nav-item active' : 'nav-item'}
-              aria-current={section === name ? 'page' : undefined}
-              key={name}
-              onClick={() => go(name)}
-            >
-              <Icon size={20} />
-              {name}
-              {name === '宠物好友' && !!live.length && (
-                <span>{live.length}</span>
-              )}
-            </button>
-          ))}
-        </nav>
-        <div className="rail-bottom">
-          <div className="rail-tip">
-            <Leaf size={22} />
-            <p>
-              不用特意打招呼，
-              <br />
-              刚好一起走走，也很好。
-            </p>
-          </div>
-          <button onClick={() => setModal('about')}>
-            <CircleHelp size={16} />
-            演示说明
-          </button>
-          <small>去哪遛 · WEB DEMO 02</small>
-        </div>
-      </Sidebar>
+    <div className="phone-app">
       <div className="app-main">
         <header className="app-header">
           <div className="breadcrumb">
@@ -700,10 +633,10 @@ export default function Home() {
             <strong>{section}</strong>
           </div>
           <div className="header-right">
-            <span className="demo-badge">
+            <button className="demo-badge" onClick={() => setModal('about')}>
               <i />
-              交互演示
-            </span>
+              手机演示
+            </button>
             <button
               className="icon-btn"
               aria-label="好友消息"
@@ -720,505 +653,43 @@ export default function Home() {
           </div>
         </header>
         {section === '遛宠地图' ? (
-          <div className="map-page">
-            <div className="map-heading">
-              <div>
-                <span className="kicker">A LITTLE WALK, A BIGGER WORLD</span>
-                <h1>
-                  今天，去哪遛<span>？</span>
-                </h1>
-                <p>
-                  <MapPin size={14} />
-                  北京 · 朝阳望京 <span className="divider">/</span>{' '}
-                  从一片好草地，认识一个好朋友
-                </p>
-              </div>
-              <button
-                className={'walk-top ' + (walking ? 'in-progress' : '')}
-                disabled={!ready}
-                onClick={begin}
-              >
-                <Footprints size={19} />
-                {walking
-                  ? '正在遛弯 · ' + walkMinutes(state.walk!, now) + ' 分钟'
-                  : '带 ' + data.pet.name + ' 出门'}
-                <ArrowUpRight size={17} />
-              </button>
-            </div>
-            <div className="map-workspace">
-              <section className="place-explorer">
-                <label className="place-search">
-                  <Search size={19} />
-                  <input
-                    aria-label="搜索遛宠地点"
-                    value={query}
-                    onChange={(e) => setQuery(e.target.value)}
-                    placeholder="找公园、绿地或友好空间"
-                  />
-                  {query && (
-                    <button aria-label="清空搜索" onClick={() => setQuery('')}>
-                      <X size={16} />
-                    </button>
-                  )}
-                </label>
-                <div className="place-filters">
-                  {[
-                    '全部',
-                    '好友在遛',
-                    '安静一点',
-                    '我的收藏',
-                    '草地公园',
-                    '河畔步道',
-                    '友好店铺',
-                  ].map((f) => (
-                    <button
-                      key={f}
-                      aria-pressed={filter === f}
-                      className={filter === f ? 'selected' : ''}
-                      onClick={() => setFilter(f)}
-                    >
-                      {f === '好友在遛' && <span className="live-dot" />}
-                      {f}
-                    </button>
-                  ))}
-                </div>
-                <button
-                  className="contribute-entry"
-                  onClick={() => setModal('contribute')}
-                >
-                  <Plus size={17} />
-                  <span>
-                    补充一个遛宠好去处<small>一起画出北京的宠物友好地图</small>
-                  </span>
-                  <ChevronRight size={16} />
-                </button>
-                <div className="list-heading">
-                  <strong>
-                    {filter === '好友在遛'
-                      ? '跟着朋友去遛弯'
-                      : '适合今天的小去处'}
-                  </strong>
-                  <span>{visiblePlaces.length} 个地点</span>
-                </div>
-                <div className="place-list">
-                  {visiblePlaces.map((p) => {
-                    const buddies = live.filter((l) => l.placeId === p.id);
-                    return (
-                      <article
-                        className={
-                          'place-result ' +
-                          (selected === p.id ? 'selected' : '')
-                        }
-                        key={p.id}
-                      >
-                        <button
-                          className="place-result-main"
-                          onClick={() => setSelected(p.id)}
-                        >
-                          <span className="place-kind-icon">
-                            {p.kind === '友好店铺' ? (
-                              <Coffee size={20} />
-                            ) : p.kind === '河畔步道' ? (
-                              <Footprints size={20} />
-                            ) : (
-                              <Trees size={20} />
-                            )}
-                          </span>
-                          <div>
-                            <span className="place-kind">
-                              {p.kind} ·{' '}
-                              {p.contributed ? '我补充的 · 待核实' : p.distance}
-                            </span>
-                            <h3>{p.name}</h3>
-                            <p>{p.features.slice(0, 2).join(' · ')}</p>
-                          </div>
-                        </button>
-                        <button
-                          className={
-                            'save-spot ' +
-                            (data.placeSaved.includes(p.id) ? 'saved' : '')
-                          }
-                          onClick={() => savePlace(p.id)}
-                          aria-label={
-                            (data.placeSaved.includes(p.id)
-                              ? '取消收藏'
-                              : '收藏') + p.name
-                          }
-                        >
-                          <Bookmark
-                            size={17}
-                            fill={
-                              data.placeSaved.includes(p.id)
-                                ? 'currentColor'
-                                : 'none'
-                            }
-                          />
-                        </button>
-                        {buddies.length > 0 && (
-                          <button
-                            className="friends-here"
-                            onClick={() => setSelected(p.id)}
-                          >
-                            <span className="avatar-stack">
-                              {buddies.map((b) => (
-                                <Photo
-                                  key={b.petId}
-                                  src={
-                                    photos[
-                                      petNetwork.find((p) => p.id === b.petId)!
-                                        .photo
-                                    ]
-                                  }
-                                />
-                              ))}
-                            </span>
-                            <span>
-                              {buddies
-                                .map(
-                                  (b) =>
-                                    petNetwork.find((p) => p.id === b.petId)
-                                      ?.name,
-                                )
-                                .join('、')}
-                              正在遛
-                            </span>
-                            <span className="live-dot" />
-                          </button>
-                        )}
-                      </article>
-                    );
-                  })}
-                  {!visiblePlaces.length && (
-                    <Empty>
-                      这里暂时没有匹配的地点。
-                      <button
-                        className="text-link"
-                        onClick={() => {
-                          setFilter('全部');
-                          setQuery('');
-                        }}
-                      >
-                        看看全部地点
-                      </button>
-                    </Empty>
-                  )}
-                </div>
-                <div className="explorer-note">
-                  <ShieldCheck size={15} />
-                  <span>地点设施、距离及好友状态均为演示数据</span>
-                </div>
-              </section>
-              <section
-                className="map-canvas"
-                aria-label="宠物好友与友好地点示意地图"
-              >
-                <div
-                  className="map-world"
-                  style={{ transform: `scale(${zoom})` }}
-                >
-                  <svg
-                    viewBox="0 0 1000 760"
-                    preserveAspectRatio="none"
-                    aria-hidden="true"
-                  >
-                    <defs>
-                      <pattern
-                        id="blockGrid"
-                        width="165"
-                        height="145"
-                        patternUnits="userSpaceOnUse"
-                      >
-                        <rect
-                          x="10"
-                          y="12"
-                          width="132"
-                          height="114"
-                          rx="13"
-                          fill="#e6e4d9"
-                        />
-                        <path
-                          d="M0 0H165M0 0V145"
-                          stroke="#fffdf7"
-                          strokeWidth="14"
-                        />
-                      </pattern>
-                    </defs>
-                    <rect width="1000" height="760" fill="#efeee5" />
-                    <rect width="1000" height="760" fill="url(#blockGrid)" />
-                    <path
-                      d="M815 -70Q650 125 750 305T800 510T780 830"
-                      fill="none"
-                      stroke="#c6dcd9"
-                      strokeWidth="205"
-                    />
-                    <path
-                      d="M745 -60Q574 130 669 326T715 500T704 810"
-                      fill="none"
-                      stroke="#fbf8e9"
-                      strokeWidth="15"
-                    />
-                    <path
-                      d="M0 180L660 170M90 0L550 760M0 465L690 530M345 0L343 760"
-                      fill="none"
-                      stroke="#d4cfbf"
-                      strokeWidth="27"
-                    />
-                    <path
-                      d="M0 180L660 170M90 0L550 760M0 465L690 530M345 0L343 760"
-                      fill="none"
-                      stroke="#fffdf5"
-                      strokeWidth="20"
-                    />
-                    <path
-                      d="M570 258L676 275L705 400L566 413L470 350Z"
-                      fill="#ccd9b8"
-                    />
-                    <path
-                      d="M170 430L320 436L341 566L179 558Z"
-                      fill="#d5ddc6"
-                    />
-                    <path
-                      d="M543 588L672 570L656 699L544 700Z"
-                      fill="#d3ddc2"
-                    />
-                    <path d="M418 43L577 39L572 119L419 120Z" fill="#d9dfcd" />
-                    <path
-                      d="M571 290Q610 320 639 364"
-                      fill="none"
-                      stroke="#edf0df"
-                      strokeWidth="9"
-                    />
-                  </svg>
-                  <span className="road-label road-one">望 京 北 路</span>
-                  <span className="road-label road-two">阜 通 东 街</span>
-                  <span className="road-label road-three">朝 阳 望 京</span>
-                  <span className="road-label river-label">北 小 河</span>
-                  <span className="map-area-tag">WANGJING · BEIJING</span>
-                  {visiblePlaces.map((p) => {
-                    const pals = live.filter((l) => l.placeId === p.id);
-                    return (
-                      <button
-                        style={{ left: p.x + '%', top: p.y + '%' }}
-                        key={p.id}
-                        onClick={() => setSelected(p.id)}
-                        aria-label={'地图地点：' + p.name}
-                        className={
-                          'spot-marker ' + (selected === p.id ? 'selected' : '')
-                        }
-                      >
-                        <span className="marker-icon">
-                          {p.kind === '友好店铺' ? (
-                            <Coffee size={22} />
-                          ) : (
-                            <Trees size={22} />
-                          )}
-                        </span>
-                        <span className="marker-name">{p.name}</span>
-                        {pals.length > 0 && (
-                          <span className="marker-buddies">
-                            {pals.map((b) => (
-                              <Photo
-                                src={
-                                  photos[
-                                    petNetwork.find((x) => x.id === b.petId)!
-                                      .photo
-                                  ]
-                                }
-                                key={b.petId}
-                              />
-                            ))}
-                            <b>{pals.length} 位好友</b>
-                          </span>
-                        )}
-                      </button>
-                    );
-                  })}
-                  {walking && (
-                    <span
-                      className="my-map-pin"
-                      style={{
-                        left:
-                          walkPlaces.find((p) => p.id === state.walk!.placeId)!
-                            .x +
-                          4 +
-                          '%',
-                        top:
-                          walkPlaces.find((p) => p.id === state.walk!.placeId)!
-                            .y +
-                          12 +
-                          '%',
-                      }}
-                    >
-                      <Photo src={photos.corgi} />
-                      <span>
-                        {data.pet.name} ·{' '}
-                        {state.walk!.visibility === 'friends'
-                          ? '好友可见'
-                          : '隐身中'}
-                      </span>
-                    </span>
-                  )}
-                </div>
-                <div className="map-sharing">
-                  <span
-                    className={
-                      walking && state.walk!.visibility === 'friends'
-                        ? 'live-dot'
-                        : 'quiet-dot'
-                    }
-                  />
-                  {walking
-                    ? state.walk!.visibility === 'friends'
-                      ? '本次地点对好友可见'
-                      : '本次遛弯仅自己可见'
-                    : '未开启地点共享'}
-                  <button
-                    onClick={() => setModal(walking ? 'walk' : 'privacy')}
-                    aria-label="位置共享设置"
-                  >
-                    {walking && state.walk!.visibility === 'friends' ? (
-                      <Eye size={16} />
-                    ) : (
-                      <EyeOff size={16} />
-                    )}
-                  </button>
-                </div>
-                <div className="live-friends-panel">
-                  <div className="panel-heading">
-                    <span className="live-dot" />
-                    <strong>{live.length} 位宠物好友正在遛</strong>
-                    <button
-                      aria-label="查看宠物好友"
-                      onClick={() => go('宠物好友')}
-                    >
-                      <ChevronRight size={16} />
-                    </button>
-                  </div>
-                  {live.length ? (
-                    live.slice(0, 2).map((p) => buddyRow(p.petId, true))
-                  ) : (
-                    <p className="nobody-live">
-                      朋友们暂时没有共享地点，自己也可以去走走。
-                    </p>
-                  )}
-                  <div className="quiet-social">
-                    <Leaf size={14} />
-                    <span>看看 TA 在哪，想去就去，不用发消息。</span>
-                  </div>
-                </div>
-                <div className="map-controls">
-                  <button
-                    aria-label="放大地图"
-                    disabled={zoom >= 1.6}
-                    onClick={() => setZoom((z) => Math.min(1.6, z + 0.2))}
-                  >
-                    <Plus size={20} />
-                  </button>
-                  <button
-                    aria-label="缩小地图"
-                    disabled={zoom <= 0.8}
-                    onClick={() => setZoom((z) => Math.max(0.8, z - 0.2))}
-                  >
-                    <Minus size={20} />
-                  </button>
-                  <button
-                    aria-label="回到演示区域"
-                    onClick={() => {
-                      setZoom(1);
-                      notify('已回到朝阳望京演示区域。');
-                    }}
-                  >
-                    <LocateFixed size={20} />
-                  </button>
-                </div>
-                {visiblePlaces.some((p) => p.id === selected) ? (
-                  <div className="selected-place-card">
-                    <div className="selected-title">
-                      <div>
-                        <span className="place-kind">
-                          {place.kind} ·{' '}
-                          {place.minutes
-                            ? `步行约 ${place.minutes} 分钟`
-                            : '步行时间待核实'}
-                        </span>
-                        <h2>{place.name}</h2>
-                      </div>
-                      <button
-                        aria-label="查看地点详情"
-                        className="circle-button"
-                        onClick={() => setModal('place')}
-                      >
-                        <ArrowUpRight size={20} />
-                      </button>
-                    </div>
-                    <div className="facility-row">
-                      <span>
-                        <Trees size={15} />
-                        {place.features[0]}
-                      </span>
-                      <span>
-                        <ShieldCheck size={15} />
-                        全程牵绳
-                      </span>
-                      <span>{place.features[1]}</span>
-                    </div>
-                    {atPlace.length > 0 ? (
-                      <div className="meet-line">
-                        <span className="live-dot" />
-                        {atPlace
-                          .map(
-                            (l) =>
-                              petNetwork.find((p) => p.id === l.petId)?.name,
-                          )
-                          .join('、')}
-                        在这里，预计还遛{' '}
-                        {Math.max(
-                          1,
-                          Math.ceil(
-                            (Math.max(...atPlace.map((p) => p.expiresAt)) -
-                              now) /
-                              60000,
-                          ),
-                        )}{' '}
-                        分钟
-                      </div>
-                    ) : (
-                      <p className="meet-line muted">{place.desc}</p>
-                    )}
-                    <div className="place-actions">
-                      <button
-                        className="primary"
-                        onClick={() => setModal('route')}
-                      >
-                        <Navigation size={17} />
-                        就去这里
-                        <ArrowUpRight size={17} />
-                      </button>
-                      <button className="secondary" onClick={begin}>
-                        <Footprints size={17} />
-                        到达，开始遛
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="map-empty-hint">
-                    选择左侧地点，查看适合毛孩子的环境与设施。
-                  </div>
-                )}
-                <div className="map-legend">
-                  <span>
-                    <i className="green" />
-                    宠物友好地点
-                  </span>
-                  <span>
-                    <i className="gold" />
-                    好友正在遛
-                  </span>
-                  <small>示意地图 · 非实际导航</small>
-                </div>
-              </section>
-            </div>
-          </div>
+          <MobileMap
+            places={state.customPlaces}
+            selected={selected}
+            saved={data.placeSaved}
+            live={live}
+            walking={walking}
+            onSelect={(p) => {
+              setSelected(p.id);
+              setState((s) => ({
+                ...s,
+                customPlaces: s.customPlaces.some((x) => x.id === p.id)
+                  ? s.customPlaces
+                  : [...s.customPlaces, p],
+              }));
+            }}
+            onSave={savePlace}
+            onStart={(p) => {
+              setSelected(p.id);
+              setState((s) => ({
+                ...s,
+                customPlaces: s.customPlaces.some((x) => x.id === p.id)
+                  ? s.customPlaces
+                  : [...s.customPlaces, p],
+              }));
+              if (walking) setModal('walk');
+              else {
+                setPrivacy('private');
+                setModal('start');
+              }
+            }}
+            onCurrentWalk={() => setModal('walk')}
+            onContribute={(p) => {
+              setSelected(p.id);
+              setModal('contribute');
+            }}
+            onPet={showPet}
+          />
         ) : (
           <div className="content-page">
             <div className="content-heading">
@@ -2021,18 +1492,22 @@ export default function Home() {
           )}
           {modal === 'contribute' && (
             <PlaceContribution
+              anchor={isLocated(place) ? place : undefined}
               onSave={(p) => {
                 setState((s) => ({
                   ...s,
-                  customPlaces: [...s.customPlaces, p],
+                  customPlaces: [
+                    ...s.customPlaces.filter((x) => x.id !== p.id),
+                    p,
+                  ],
                   legacy: {
                     ...s.legacy,
-                    placeSaved: [...s.legacy.placeSaved, p.id],
+                    placeSaved: Array.from(
+                      new Set([...s.legacy.placeSaved, p.id]),
+                    ),
                   },
                 }));
                 setSelected(p.id);
-                setFilter('全部');
-                setQuery('');
                 setModal('place');
                 notify('已保存并收藏你的地点，当前状态：待核实。');
               }}
@@ -2125,14 +1600,20 @@ export default function Home() {
                 </div>
               )}
               <p className="demo-footnote">
-                演示地点与设施信息，不作为实际出行依据。
+                {isLocated(place)
+                  ? '真实地图地点，携宠规则与现场体验仍需核实。'
+                  : '演示地点与设施信息，不作为实际出行依据。'}
               </p>
               <button
                 className="primary full-width"
-                onClick={() => setModal('route')}
+                onClick={() => {
+                  const url = amapNavigation(place);
+                  if (url) window.open(url, '_blank', 'noopener,noreferrer');
+                  else setModal('route');
+                }}
               >
                 <Navigation size={17} />
-                就去这里
+                {isLocated(place) ? '在高德查看路线' : '查看演示流程'}
               </button>
             </div>
           )}
@@ -2710,8 +2191,8 @@ export default function Home() {
                 去哪遛围绕宠物的出门和朋友展开：找宠物友好的地方，看看宠物朋友在哪遛，想过去就直接过去，也可以约好下一次。
               </p>
               <p>
-                地图、路线、设施、宠物好友和遛弯状态均为演示。共享仅在本浏览器模拟；未接入
-                GPS、即时通讯或真实地图服务。
+                真实地图使用高德 JS
+                API，需配置项目地图服务后启用。宠物好友、聊天与地点共享仍只在本浏览器模拟，尚未接入多用户实时同步。
               </p>
               <p>
                 你的日常记录保存在本机。旧版已发布的动态、评论和宠物资料会迁移保留。照片由
@@ -2730,6 +2211,6 @@ export default function Home() {
           {toast}
         </output>
       )}
-    </SidebarProvider>
+    </div>
   );
 }
