@@ -16,10 +16,13 @@ export async function GET(
   );
   if (!url) return new Response('Not found', { status: 404 });
   try {
-    const upstream = await fetch(url, {
-      redirect: 'error',
+    const upstream = await fetch(url.toString(), {
+      redirect: 'manual',
+      headers: { Referer: new URL(request.url).origin + '/' },
       signal: AbortSignal.timeout(15000),
     });
+    if (upstream.status >= 300 && upstream.status < 400)
+      return Response.json({ error: 'MAP_UPSTREAM_REDIRECT' }, { status: 502 });
     return new Response(upstream.body, {
       status: upstream.status,
       headers: {
@@ -29,7 +32,13 @@ export async function GET(
         'X-Content-Type-Options': 'nosniff',
       },
     });
-  } catch {
+  } catch (error) {
+    // Keep upstream credentials and request queries out of diagnostic logs.
+    const message = error instanceof Error ? error.message : 'Unknown failure';
+    console.error('AMap upstream failed', message
+      .replaceAll(config.AMAP_JSAPI_KEY, '[redacted]')
+      .replaceAll(config.AMAP_SECURITY_JSCODE, '[redacted]')
+      .replace(/https?:\/\/\S+/g, '[upstream]'));
     return Response.json(
       { error: 'MAP_UPSTREAM_UNAVAILABLE' },
       { status: 502 },

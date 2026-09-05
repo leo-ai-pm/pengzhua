@@ -4,7 +4,7 @@
 
 ## 当前交付状态
 
-已完成手机布局、高德 JS API 2.0 接入代码、搜索北京 POI、用户主动定位、步行路线规划、高德导航链接、真实地点收藏及现场体验补充。**地图尚未配置项目 Key，因此未完成真实服务联调。** 无 Key 时显示待启用状态，取消旧的手绘示意地图。
+已完成手机布局、高德 JS API 2.0 接入代码、搜索北京 POI、用户主动定位、步行路线规划、高德导航链接、真实地点收藏及现场体验补充。已创建本项目高德 Web Key，配置线上域名白名单与服务端安全密钥。 无 Key 时显示待启用状态，取消旧的手绘示意地图。
 
 见 [MAP-SETUP.md](MAP-SETUP.md) 配置地图。地图 Key 是 Web 端（JS API）类型，安全密钥保留在 Worker，不发给浏览器。
 
@@ -28,7 +28,7 @@ npm run dev
 
 按 `.env.example` 配置忽略提交的 `.env`，线上通过 Sites 同名环境变量配置。生产构建 `npm run build`。类型检查 `npx tsc --noEmit`。业务静态检查 `npx oxlint app lib/amap-client.ts lib/amap-service.ts`。测试 `node --test app/walk-model.test.mjs lib/amap-service.test.mjs`。
 
-生成器附带组件有既有 lint 报告，业务代码单独检查。按 Sites 环境约定，未进行浏览器自动化测试；真实高德功能必须在有效 Key 配置后完成联调。
+生成器附带组件有既有 lint 报告，业务代码单独检查。按 Sites 环境约定，未进行浏览器自动化测试；真实高德搜索与步行接口已返回有效数据；设备定位需用户在手机浏览器中授权。
 
 ## 数据边界
 

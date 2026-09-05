@@ -1,6 +1,6 @@
 # 启用项目的高德地图
 
-当前状态：已实现高德 JS API 2.0 接入、地点搜索、主动定位、步行路线与外部导航。尚未配置项目 Key，真实服务未完成联调。无 Key 时明确显示“真实地图等待启用”，不回退到手绘示意图。
+当前状态：已实现高德 JS API 2.0 接入、地点搜索、主动定位、步行路线与外部导航。已在高德控制台创建“去哪遛”应用与 Web Key，配置网站域名白名单及 Sites 密钥环境变量。无 Key 时明确显示“真实地图等待启用”，不回退到手绘示意图。
 
 ## 申请与配置
 
@@ -22,3 +22,11 @@
 - 旧版宠物朋友、聊天、地点共享仍是本地模拟；在“宠物好友”明确标注，不放到真实地图上。多用户同步与授权需要下一阶段后端接入。
 
 官方依据：[申请 JS API Key](https://lbs.amap.com/api/javascript-api-v2/prerequisites)、[安全密钥服务端代理](https://lbs.amap.com/api/javascript-api-v2/guide/abc/jscode)、[步行路线](https://lbs.amap.com/demo/javascript-api-v2/example/walking-route/walk-custom)、[导航 URI](https://developer.amap.com/api/uri-api/guide/travel/route)。
+
+## 2026-09-05 配置记录
+
+应用：去哪遛；Key 名称：去哪遛-Web-Demo；平台：Web端（JS API）。白名单仅包含线上站点域名（高德控制台不接受 localhost）。安全密钥保留在服务端，凭据不进入 Git。
+
+真实高德接口已返回北京望京公园搜索结果，并返回望京测试坐标间 802 米步行路线。此路线用于接口验证，不代表用户当前位置。设备 GPS 需用户在手机上主动授权。
+
+代理采用 Cloudflare 支持的 manual 重定向模式，拒绝重定向响应；向高德发送当前网站来源以验证域名白名单。
