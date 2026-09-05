@@ -15,6 +15,14 @@ export type Walk = {
   expiresAt: number;
   visibility: Visibility;
   endedAt?: number;
+  memory?: WalkMemory;
+};
+export type WalkMemory = {
+  ownerMood: string;
+  petMood: string;
+  note: string;
+  photo: string;
+  metPetIds: string[];
 };
 export type Place = {
   id: string;
@@ -22,7 +30,7 @@ export type Place = {
   area: string;
   distance: string;
   minutes: number;
-  kind: '草地公园' | '滨江步道' | '友好店铺';
+  kind: '草地公园' | '河畔步道' | '友好店铺';
   desc: string;
   features: string[];
   caution: string;
@@ -32,46 +40,48 @@ export type Place = {
   route: string;
   photo: 'park' | 'golden' | 'corgi';
   quiet: boolean;
+  contributed?: boolean;
+  photoUrl?: string;
 };
 export const walkPlaces: Place[] = [
   {
     id: 'p1',
-    name: '西岸宠友草坪',
-    area: '徐汇滨江 · 龙腾大道段',
+    name: '望京宠友草坪',
+    area: '朝阳望京 · 望京北路段',
     distance: '800 m',
     minutes: 12,
     kind: '草地公园',
-    desc: '开阔的草地，旁边就是沿江步道。小短腿也能轻松走一圈。',
+    desc: '开阔的草地，旁边就是沿河步道。小短腿也能轻松走一圈。',
     features: ['开阔草地', '宠物饮水', '全程牵绳', '有遮阴'],
     caution: '草坪无围栏，靠近步道；请全程牵绳。',
     size: '小型 / 中大型犬',
     x: 47,
     y: 45,
-    route: '从街区入口沿龙腾大道向南，进入滨江步道后抵达草坪入口。',
+    route: '从街区入口沿望京北路向南，进入河畔步道后抵达草坪入口。',
     photo: 'park',
     quiet: false,
   },
   {
     id: 'p2',
-    name: '滨江慢行步道',
-    area: '徐汇滨江 · 沿江绿道',
+    name: '北小河慢行步道',
+    area: '朝阳望京 · 沿河绿道',
     distance: '1.2 km',
     minutes: 18,
-    kind: '滨江步道',
-    desc: '沿江慢慢走，不赶时间。适合喜欢嗅闻、想轻松散步的毛孩子。',
-    features: ['平整路面', '沿江步道', '全程牵绳', '适合慢走'],
+    kind: '河畔步道',
+    desc: '沿河慢慢走，不赶时间。适合喜欢嗅闻、想轻松散步的毛孩子。',
+    features: ['平整路面', '沿河步道', '全程牵绳', '适合慢走'],
     caution: '与跑步、自行车路线相邻，留意过往行人。',
     size: '小型 / 中大型犬',
     x: 69,
     y: 24,
-    route: '从社区东侧出口前往滨江绿道，沿步行道抵达集合入口。',
+    route: '从社区东侧出口前往北小河绿道，沿步行道抵达集合入口。',
     photo: 'golden',
     quiet: true,
   },
   {
     id: 'p3',
     name: '口袋花园',
-    area: '西岸街区 · 社区绿地',
+    area: '望京街区 · 社区绿地',
     distance: '600 m',
     minutes: 9,
     kind: '草地公园',
@@ -88,7 +98,7 @@ export const walkPlaces: Place[] = [
   {
     id: 'p4',
     name: '爪爪咖啡·户外区',
-    area: '龙腾大道 · 休息补给',
+    area: '望京北路 · 休息补给',
     distance: '1.6 km',
     minutes: 22,
     kind: '友好店铺',
@@ -98,24 +108,24 @@ export const walkPlaces: Place[] = [
     size: '需能安静停留',
     x: 34,
     y: 23,
-    route: '沿龙腾大道步行至街角户外座位区。',
+    route: '沿望京北路步行至街角户外座位区。',
     photo: 'corgi',
     quiet: false,
   },
   {
     id: 'p5',
-    name: '江畔树荫小径',
-    area: '滨江绿道 · 南段',
+    name: '河畔树荫小径',
+    area: '北小河绿道 · 南段',
     distance: '2.1 km',
     minutes: 30,
-    kind: '滨江步道',
+    kind: '河畔步道',
     desc: '一段被树荫覆盖的小路，适合只想和毛孩子安安静静待一会儿的傍晚。',
     features: ['有遮阴', '人流较少', '全程牵绳', '长线散步'],
     caution: '部分路段照明较少，建议白天前往。',
     size: '喜欢安静的宠物',
     x: 66,
     y: 73,
-    route: '从滨江主步道向南，进入树荫支线。',
+    route: '从北小河主步道向南，进入树荫支线。',
     photo: 'park',
     quiet: true,
   },
@@ -128,7 +138,7 @@ export const petNetwork = [
     age: '3 岁',
     photo: 'golden' as const,
     temper: '热情友善',
-    desc: '喜欢捡球，也喜欢和小朋友一起玩。我们常在傍晚去滨江。',
+    desc: '喜欢捡球，也喜欢和小朋友一起玩。我们常在傍晚去北小河。',
     relation: '和芒果一起遛过 3 次',
     placeId: 'p1',
     remaining: 42,
@@ -171,7 +181,7 @@ export const petNetwork = [
     photo: 'corgi' as const,
     temper: '温柔好奇',
     desc: '散步以嗅闻为主，喜欢慢慢认识新朋友。',
-    relation: '常来西岸宠友草坪',
+    relation: '常来望京宠友草坪',
     placeId: 'p1',
     remaining: 36,
     status: 'live',

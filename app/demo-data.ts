@@ -44,19 +44,19 @@ export const friends = [
 export const places = [
   {
     id: 'p1',
-    name: '滨江宠友草坪',
-    area: '徐汇滨江 · 公共绿地',
+    name: '望京宠友草坪',
+    area: '朝阳望京 · 公共绿地',
     distance: '800m',
     rating: '4.9',
     tags: ['开阔草地', '需牵绳', '饮水点'],
-    desc: '沿江步道和开阔草坪，适合傍晚散步。此为演示地点，设施与开放状态不代表真实情况。',
+    desc: '沿河步道和开阔草坪，适合傍晚散步。此为演示地点，设施与开放状态不代表真实情况。',
     x: 32,
     y: 43,
   },
   {
     id: 'p2',
     name: '爪爪咖啡',
-    area: '龙腾大道 · 宠物友好店',
+    area: '望京北路 · 宠物友好店',
     distance: '1.6km',
     rating: '4.8',
     tags: ['室外座位', '宠物饮水', '需牵绳'],
@@ -67,7 +67,7 @@ export const places = [
   {
     id: 'p3',
     name: '口袋花园',
-    area: '西岸街区 · 社区公园',
+    area: '望京街区 · 社区公园',
     distance: '2.1km',
     rating: '4.7',
     tags: ['遮阴步道', '安静休息', '需牵绳'],
@@ -100,7 +100,7 @@ export const seedPosts: Post[] = [
     topic: '遛宠日常',
     category: '汪星人',
     likes: 128,
-    city: '上海',
+    city: '北京',
     time: '20 分钟前',
   },
   {
@@ -113,7 +113,7 @@ export const seedPosts: Post[] = [
     topic: '喵星人的日常',
     category: '喵星人',
     likes: 96,
-    city: '杭州',
+    city: '北京',
     time: '1 小时前',
   },
   {
@@ -126,7 +126,7 @@ export const seedPosts: Post[] = [
     topic: '遛宠日常',
     category: '汪星人',
     likes: 72,
-    city: '上海',
+    city: '北京',
     time: '2 小时前',
   },
   {
@@ -139,7 +139,7 @@ export const seedPosts: Post[] = [
     topic: '友好探店',
     category: '汪星人',
     likes: 205,
-    city: '上海',
+    city: '北京',
     time: '3 小时前',
   },
   {
@@ -152,7 +152,7 @@ export const seedPosts: Post[] = [
     topic: '喵星人的日常',
     category: '喵星人',
     likes: 63,
-    city: '杭州',
+    city: '北京',
     time: '昨天',
   },
   {
@@ -165,7 +165,7 @@ export const seedPosts: Post[] = [
     topic: '遛宠日常',
     category: '汪星人',
     likes: 89,
-    city: '上海',
+    city: '北京',
     time: '昨天',
   },
 ];

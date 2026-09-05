@@ -51,7 +51,7 @@ test('expired sessions do not count time beyond expiry', () => {
 test('friend filter removes stale sharing and combines with search', () => {
   const live = visiblePresences([presence], ['buddy'], now);
   assert.deepEqual(
-    filterPlaces(walkPlaces, '好友在遛', '西岸', [], live).map((p) => p.id),
+    filterPlaces(walkPlaces, '好友在遛', '望京', [], live).map((p) => p.id),
     ['p1'],
   );
   assert.equal(

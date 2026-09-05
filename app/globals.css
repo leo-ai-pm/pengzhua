@@ -3427,3 +3427,207 @@ h1 > span {
     font-size: 11px;
   }
 }
+
+/* Walking memories and community place contributions */
+.contribute-entry {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 13px 14px;
+  margin: 14px 0 2px;
+  border: 1px dashed #acbbaa;
+  border-radius: 12px;
+  color: #3c624c;
+  background: #f4f6ee;
+  text-align: left;
+}
+.contribute-entry span {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 650;
+}
+.contribute-entry small {
+  display: block;
+  font-size: 11px;
+  font-weight: 400;
+  color: #7c887a;
+  margin-top: 3px;
+}
+.memory-editor,
+.contribute-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.memory-heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 15px;
+  background: #edf2e7;
+  border-radius: 14px;
+  color: #4e6947;
+}
+.memory-heading p {
+  font-size: 12px;
+  margin-top: 4px;
+}
+.memory-photo-field {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.memory-photo-field > img {
+  width: 100%;
+  height: 205px;
+  object-fit: cover;
+  border-radius: 13px;
+}
+.memory-photo-field label {
+  cursor: pointer;
+}
+.memory-editor fieldset,
+.contribute-form fieldset {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
+.memory-editor legend,
+.contribute-form legend {
+  font-size: 13px;
+  font-weight: 650;
+  margin-bottom: 9px;
+}
+.mood-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.mood-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+.mood-options button {
+  border: 1px solid #e0ded2;
+  border-radius: 20px;
+  padding: 8px 11px;
+  font-size: 12px;
+  color: #6f7368;
+  background: #faf9f3;
+}
+.mood-options button[aria-pressed='true'] {
+  color: #335a40;
+  background: #e6eddb;
+  border-color: #819a73;
+}
+.met-pets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+.met-pets button {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid #e1dfd5;
+  border-radius: 30px;
+  padding: 5px 11px 5px 5px;
+  font-size: 13px;
+}
+.met-pets img {
+  height: 30px;
+  width: 30px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.met-pets button[aria-pressed='true'] {
+  background: #e8efdf;
+  border-color: #829775;
+}
+.calendar-memory {
+  border-bottom: 1px solid #e9e7de;
+  padding-bottom: 20px;
+  margin-bottom: 14px;
+}
+.calendar-memory > .history-row {
+  border: 0;
+}
+.calendar-memory > .text-link {
+  margin-top: 14px;
+}
+.memory-preview {
+  display: flex;
+  gap: 15px;
+  align-items: flex-start;
+  background: #faf8f0;
+  border-radius: 12px;
+  padding: 14px;
+}
+.memory-thumb {
+  height: 112px;
+  width: 94px;
+  object-fit: cover;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+.memory-preview p {
+  font-size: 13px;
+  line-height: 1.8;
+  margin: 10px 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.memory-preview small {
+  color: #62805b;
+  font-size: 12px;
+}
+.memory-stickers {
+  display: flex;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+.memory-stickers span {
+  padding: 5px 9px;
+  background: #ebece0;
+  color: #687548;
+  border-radius: 6px;
+  font-size: 11px;
+}
+.contribution-status {
+  background: #f5eedc;
+  padding: 13px;
+  border-radius: 12px;
+}
+.contribution-status span {
+  font-size: 13px;
+  font-weight: 650;
+  color: #957838;
+}
+.contribution-status p {
+  font-size: 12px;
+  margin-top: 5px;
+}
+.contribution-photo {
+  height: 190px;
+  width: 100%;
+  object-fit: cover;
+  border-radius: 12px;
+}
+@media (max-width: 600px) {
+  .mood-pair {
+    grid-template-columns: 1fr;
+  }
+  .memory-thumb {
+    width: 72px;
+    height: 96px;
+  }
+  .memory-preview {
+    gap: 10px;
+    padding: 10px;
+  }
+}

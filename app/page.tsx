@@ -61,7 +61,7 @@ import {
 import { Switch } from '@/components/ui/switch';
 import { photos, initialState, toggleItem, type DemoState } from './demo-data';
 import {
-  walkPlaces,
+  walkPlaces as basePlaces,
   petNetwork,
   seedPresences,
   visiblePresences,
@@ -72,7 +72,10 @@ import {
   type Walk,
   type Presence,
   type Visibility,
+  type Place,
 } from './walk-model';
+
+import { MemoryEditor, PlaceContribution } from './walk-extras';
 
 type State = {
   legacy: DemoState;
@@ -81,6 +84,7 @@ type State = {
   presences: Presence[];
   walk: Walk | null;
   history: Walk[];
+  customPlaces: Place[];
 };
 const KEY = 'qunaliu-walk-demo-v2';
 const sections = [
@@ -98,6 +102,7 @@ function initial(now = 0): State {
     presences: seedPresences(now),
     walk: null,
     history: [],
+    customPlaces: [],
   };
 }
 function Photo({
@@ -210,6 +215,7 @@ export default function Home() {
   const [draftTitle, setDraftTitle] = useState('');
   const [draftPhoto, setDraftPhoto] = useState(photos.corgi);
   const [edit, setEdit] = useState(state.legacy.pet);
+  const [memoryId, setMemoryId] = useState('');
   const [postId, setPostId] = useState<string | null>(null);
   const [comment, setComment] = useState('');
   const [calendarDay, setCalendarDay] = useState('');
@@ -243,6 +249,10 @@ export default function Home() {
       next.history = [finishWalk(next.walk, t), ...next.history];
       next.walk = null;
     }
+    // Refresh seeded demo post locations while retaining user-authored records.
+    next.legacy.posts = next.legacy.posts.map((p) =>
+      /^s[1-6]$/.test(p.id) ? { ...p, city: '北京' } : p,
+    );
     setState(next);
     setReady(true);
   }, []);
@@ -279,6 +289,8 @@ export default function Home() {
     return () => clearTimeout(id);
   }, [toast]);
   const data = state.legacy;
+  const walkPlaces = [...basePlaces, ...state.customPlaces];
+  const memoryWalk = state.history.find((w) => w.id === memoryId);
   const live = visiblePresences(state.presences, state.buddyIds, now);
   const walking = activeWalk(state.walk, now);
   const visiblePlaces = filterPlaces(
@@ -349,14 +361,16 @@ export default function Home() {
     );
   }
   function endWalk() {
-    const t = Date.now();
-    setState((s) =>
-      s.walk
-        ? { ...s, history: [finishWalk(s.walk, t), ...s.history], walk: null }
-        : s,
-    );
-    setModal('');
-    notify('本次遛弯已结束，已停止共享并收进陪伴日历。');
+    if (!state.walk) return;
+    const ended = finishWalk(state.walk, Date.now());
+    setState((s) => ({ ...s, history: [ended, ...s.history], walk: null }));
+    setMemoryId(ended.id);
+    setModal('memory');
+    notify('已回家，地点共享已关闭。再留下一点今天的回忆吧。');
+  }
+  function openMemory(id: string) {
+    setMemoryId(id);
+    setModal('memory');
   }
   function changeSharing(share: boolean) {
     setState((s) =>
@@ -469,7 +483,7 @@ export default function Home() {
           topic: '一起遛过的日子',
           category: '汪星人',
           likes: 0,
-          city: '上海',
+          city: '北京',
           time: '刚刚',
         },
         ...d.posts,
@@ -715,7 +729,7 @@ export default function Home() {
                 </h1>
                 <p>
                   <MapPin size={14} />
-                  上海 · 徐汇滨江 <span className="divider">/</span>{' '}
+                  北京 · 朝阳望京 <span className="divider">/</span>{' '}
                   从一片好草地，认识一个好朋友
                 </p>
               </div>
@@ -754,7 +768,7 @@ export default function Home() {
                     '安静一点',
                     '我的收藏',
                     '草地公园',
-                    '滨江步道',
+                    '河畔步道',
                     '友好店铺',
                   ].map((f) => (
                     <button
@@ -768,6 +782,16 @@ export default function Home() {
                     </button>
                   ))}
                 </div>
+                <button
+                  className="contribute-entry"
+                  onClick={() => setModal('contribute')}
+                >
+                  <Plus size={17} />
+                  <span>
+                    补充一个遛宠好去处<small>一起画出北京的宠物友好地图</small>
+                  </span>
+                  <ChevronRight size={16} />
+                </button>
                 <div className="list-heading">
                   <strong>
                     {filter === '好友在遛'
@@ -794,7 +818,7 @@ export default function Home() {
                           <span className="place-kind-icon">
                             {p.kind === '友好店铺' ? (
                               <Coffee size={20} />
-                            ) : p.kind === '滨江步道' ? (
+                            ) : p.kind === '河畔步道' ? (
                               <Footprints size={20} />
                             ) : (
                               <Trees size={20} />
@@ -802,7 +826,8 @@ export default function Home() {
                           </span>
                           <div>
                             <span className="place-kind">
-                              {p.kind} · {p.distance}
+                              {p.kind} ·{' '}
+                              {p.contributed ? '我补充的 · 待核实' : p.distance}
                             </span>
                             <h3>{p.name}</h3>
                             <p>{p.features.slice(0, 2).join(' · ')}</p>
@@ -964,11 +989,11 @@ export default function Home() {
                       strokeWidth="9"
                     />
                   </svg>
-                  <span className="road-label road-one">龙 腾 大 道</span>
-                  <span className="road-label road-two">瑞 宁 路</span>
-                  <span className="road-label road-three">徐 汇 滨 江</span>
-                  <span className="road-label river-label">黄 浦 江</span>
-                  <span className="map-area-tag">WEST BUND</span>
+                  <span className="road-label road-one">望 京 北 路</span>
+                  <span className="road-label road-two">阜 通 东 街</span>
+                  <span className="road-label road-three">朝 阳 望 京</span>
+                  <span className="road-label river-label">北 小 河</span>
+                  <span className="map-area-tag">WANGJING · BEIJING</span>
                   {visiblePlaces.map((p) => {
                     const pals = live.filter((l) => l.placeId === p.id);
                     return (
@@ -1100,7 +1125,7 @@ export default function Home() {
                     aria-label="回到演示区域"
                     onClick={() => {
                       setZoom(1);
-                      notify('已回到徐汇滨江演示区域。');
+                      notify('已回到朝阳望京演示区域。');
                     }}
                   >
                     <LocateFixed size={20} />
@@ -1111,7 +1136,10 @@ export default function Home() {
                     <div className="selected-title">
                       <div>
                         <span className="place-kind">
-                          {place.kind} · 步行约 {place.minutes} 分钟
+                          {place.kind} ·{' '}
+                          {place.minutes
+                            ? `步行约 ${place.minutes} 分钟`
+                            : '步行时间待核实'}
                         </span>
                         <h2>{place.name}</h2>
                       </div>
@@ -1340,7 +1368,13 @@ export default function Home() {
                               · {walkMinutes(w, now)} 分钟
                             </p>
                           </div>
-                          <span className="small-tag">已回家</span>
+                          <button
+                            className="text-link"
+                            onClick={() => openMemory(w.id)}
+                          >
+                            {w.memory ? '翻开回忆' : '补记回忆'}
+                            <ChevronRight size={14} />
+                          </button>
                         </div>
                       ))
                     ) : (
@@ -1463,7 +1497,14 @@ export default function Home() {
                               </div>
                               <p>
                                 {b.temper} ·{' '}
-                                {b.relation.replaceAll('芒果', data.pet.name)}
+                                {state.history.filter((w) =>
+                                  w.memory?.metPetIds.includes(b.id),
+                                ).length
+                                  ? `已记录 ${state.history.filter((w) => w.memory?.metPetIds.includes(b.id)).length} 次相遇`
+                                  : b.relation.replaceAll(
+                                      '芒果',
+                                      data.pet.name,
+                                    )}
                               </p>
                               {presence ? (
                                 <div className="friend-presence">
@@ -1552,7 +1593,7 @@ export default function Home() {
                         <Photo src={photos.corgi} className="avatar" />
                         <div>
                           <strong>土豆</strong>
-                          <p>常来西岸宠友草坪</p>
+                          <p>常来望京宠友草坪</p>
                         </div>
                         <button
                           className="circle-button"
@@ -1766,21 +1807,67 @@ export default function Home() {
                         )
                       : monthWalks
                     ).map((w) => (
-                      <div className="history-row" key={w.id}>
-                        <span>
-                          <Footprints size={20} />
-                        </span>
-                        <div>
-                          <strong>
-                            {walkPlaces.find((p) => p.id === w.placeId)?.name}
-                          </strong>
-                          <p>
-                            {new Date(w.startedAt).toLocaleDateString('zh-CN')}{' '}
-                            · {timeLabel(w.startedAt)}—
-                            {timeLabel(w.endedAt || w.expiresAt)}
-                          </p>
+                      <div className="calendar-memory" key={w.id}>
+                        <div className="history-row">
+                          <span>
+                            <Footprints size={20} />
+                          </span>
+                          <div>
+                            <strong>
+                              {walkPlaces.find((p) => p.id === w.placeId)?.name}
+                            </strong>
+                            <p>
+                              {new Date(w.startedAt).toLocaleDateString(
+                                'zh-CN',
+                              )}{' '}
+                              · {timeLabel(w.startedAt)}—
+                              {timeLabel(w.endedAt || w.expiresAt)}
+                            </p>
+                          </div>
+                          <b>{walkMinutes(w, now)} 分钟</b>
                         </div>
-                        <b>{walkMinutes(w, now)} 分钟</b>
+                        {w.memory && (
+                          <div className="memory-preview">
+                            {w.memory.photo && (
+                              <Photo
+                                src={w.memory.photo}
+                                alt="这一天的记忆照"
+                                className="memory-thumb"
+                              />
+                            )}
+                            <div>
+                              <div className="memory-stickers">
+                                {w.memory.ownerMood && (
+                                  <span>我 · {w.memory.ownerMood}</span>
+                                )}
+                                {w.memory.petMood && (
+                                  <span>TA · {w.memory.petMood}</span>
+                                )}
+                              </div>
+                              {w.memory.note && <p>{w.memory.note}</p>}
+                              {!!w.memory.metPetIds.length && (
+                                <small>
+                                  遇见了{' '}
+                                  {w.memory.metPetIds
+                                    .map(
+                                      (id) =>
+                                        petNetwork.find((p) => p.id === id)
+                                          ?.name,
+                                    )
+                                    .filter(Boolean)
+                                    .join('、')}
+                                </small>
+                              )}
+                            </div>
+                          </div>
+                        )}
+                        <button
+                          className="text-link"
+                          onClick={() => openMemory(w.id)}
+                        >
+                          <BookOpen size={15} />
+                          {w.memory ? '编辑这页回忆' : '补上一张照片、一点心情'}
+                        </button>
                       </div>
                     ))}
                     {!(
@@ -1887,6 +1974,8 @@ export default function Home() {
               privacy: '地点共享，由你决定',
               about: '去哪遛 · 演示说明',
               code: '添加宠物好友',
+              memory: '把这次出门，认真记下来',
+              contribute: '补充遛宠好去处',
             }[modal] || '去哪遛'}
           </DialogTitle>
           <DialogDescription>
@@ -1898,6 +1987,57 @@ export default function Home() {
                   ? '先看看环境适不适合，再带毛孩子出发。'
                   : '和毛孩子，把日子过得慢一点。'}
           </DialogDescription>
+          {modal === 'memory' && memoryWalk && (
+            <MemoryEditor
+              key={memoryWalk.id}
+              walk={memoryWalk}
+              placeName={
+                walkPlaces.find((p) => p.id === memoryWalk.placeId)?.name ||
+                '一起出过的门'
+              }
+              petName={data.pet.name}
+              buddyIds={state.buddyIds}
+              onSave={(memory) => {
+                setState((s) => ({
+                  ...s,
+                  history: s.history.map((w) =>
+                    w.id === memoryWalk.id ? { ...w, memory } : w,
+                  ),
+                }));
+                const day = new Date(memoryWalk.startedAt);
+                const today = new Date();
+                setCalendarOffset(
+                  (day.getFullYear() - today.getFullYear()) * 12 +
+                    day.getMonth() -
+                    today.getMonth(),
+                );
+                setCalendarDay(
+                  `${day.getFullYear()}-${day.getMonth() + 1}-${day.getDate()}`,
+                );
+                go('陪伴日历');
+                notify('照片、心情和相遇，已收进你的私人日历。');
+              }}
+            />
+          )}
+          {modal === 'contribute' && (
+            <PlaceContribution
+              onSave={(p) => {
+                setState((s) => ({
+                  ...s,
+                  customPlaces: [...s.customPlaces, p],
+                  legacy: {
+                    ...s.legacy,
+                    placeSaved: [...s.legacy.placeSaved, p.id],
+                  },
+                }));
+                setSelected(p.id);
+                setFilter('全部');
+                setQuery('');
+                setModal('place');
+                notify('已保存并收藏你的地点，当前状态：待核实。');
+              }}
+            />
+          )}
           {modal === 'place' && (
             <div className="place-detail">
               <div className="detail-lead">
@@ -1924,6 +2064,19 @@ export default function Home() {
                   />
                 </button>
               </div>
+              {place.contributed && (
+                <div className="contribution-status">
+                  <span>我的贡献 · 待核实</span>
+                  <p>只在本浏览器保存；尚未核实实际携宠规则。</p>
+                </div>
+              )}
+              {place.photoUrl && (
+                <Photo
+                  src={place.photoUrl}
+                  className="contribution-photo"
+                  alt={place.name}
+                />
+              )}
               <p>{place.desc}</p>
               <div className="detail-facilities">
                 {place.features.map((f, i) => (
@@ -1955,17 +2108,22 @@ export default function Home() {
               ) : (
                 <p className="muted-copy">暂时没有好友在这里共享遛弯状态。</p>
               )}
-              <div className="new-friend">
-                <Photo src={photos.corgi} className="avatar" />
-                <div>
-                  <strong>常来这里的土豆</strong>
-                  <p>温柔好奇 · 柯基 · 想交新朋友</p>
+              {place.id === 'p1' && (
+                <div className="new-friend">
+                  <Photo src={photos.corgi} className="avatar" />
+                  <div>
+                    <strong>常来这里的土豆</strong>
+                    <p>温柔好奇 · 柯基 · 想交新朋友</p>
+                  </div>
+                  <button
+                    className="text-link"
+                    onClick={() => showPet('tudou')}
+                  >
+                    认识一下
+                    <Plus size={15} />
+                  </button>
                 </div>
-                <button className="text-link" onClick={() => showPet('tudou')}>
-                  认识一下
-                  <Plus size={15} />
-                </button>
-              </div>
+              )}
               <p className="demo-footnote">
                 演示地点与设施信息，不作为实际出行依据。
               </p>
@@ -1992,13 +2150,16 @@ export default function Home() {
                 <div>
                   <i />
                   <span>
-                    社区出发点<small>当前为徐汇滨江演示区域</small>
+                    社区出发点<small>当前为朝阳望京演示区域</small>
                   </span>
                 </div>
                 <div>
                   <Footprints size={16} />
                   <span>
-                    步行约 {place.minutes} 分钟<small>{place.route}</small>
+                    {place.minutes
+                      ? `步行约 ${place.minutes} 分钟`
+                      : '步行时间待核实'}
+                    <small>{place.route}</small>
                   </span>
                 </div>
                 <div>
