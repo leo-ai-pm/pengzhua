@@ -1502,7 +1502,7 @@ export default function Home() {
               <Icon size={21} />
               <span>
                 {name === '遛宠地图'
-                  ? '去哪遛'
+                  ? '碰爪'
                   : name === '我的宠物'
                     ? '我的宠物'
                     : name === '宠物好友'
@@ -1538,11 +1538,11 @@ export default function Home() {
                 publish: '记录一件小事',
                 post: '一起遛过的日子',
                 privacy: '地点共享，由你决定',
-                about: '去哪遛 · 演示说明',
+                about: '碰爪 · 演示说明',
                 code: '添加宠物好友',
                 memory: '把这次出门，认真记下来',
                 contribute: '补充遛宠好去处',
-              }[modal] || '去哪遛'}
+              }[modal] || '碰爪'}
             </DialogTitle>
             <DialogDescription>
               {modal === 'chat'
@@ -2437,7 +2437,7 @@ export default function Home() {
             {modal === 'about' && (
               <div className="explanation">
                 <p>
-                  去哪遛围绕宠物的出门和朋友展开：找宠物友好的地方，看看宠物朋友在哪遛，想过去就直接过去，也可以约好下一次。
+                  碰爪围绕宠物的出门和朋友展开：找宠物友好的地方，看看宠物朋友在哪遛，想过去就直接过去，也可以约好下一次。
                 </p>
                 <p>
                   真实地图使用高德 JS

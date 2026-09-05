@@ -20,9 +20,9 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: '去哪遛 · 和毛孩子一起出门',
+  title: '碰爪 · 和毛孩子一起出门',
   description:
-    '找到宠物友好的地方，看看宠物好友正在哪遛，想去就去。去哪遛 Web 交互演示。',
+    '找到宠物友好的地方，看看宠物好友正在哪遛，想去就去。碰爪 Web 交互演示。',
 };
 
 export default function RootLayout({
