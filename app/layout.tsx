@@ -13,8 +13,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: '去哪遛 · 宠物交友社区',
-  description: '发现附近宠友，分享毛孩子日常。去哪遛 Web 交互演示。',
+  title: '去哪遛 · 和毛孩子一起出门',
+  description:
+    '找到宠物友好的地方，看看宠物好友正在哪遛，想去就去。去哪遛 Web 交互演示。',
 };
 
 export default function RootLayout({
