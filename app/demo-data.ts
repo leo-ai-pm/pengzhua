@@ -91,6 +91,32 @@ export type Post = {
 };
 export const seedPosts: Post[] = [
   {
+    id: 's8',
+    title: '傍晚散步，你们都带些什么？',
+    body: '汤圆的出门小包里总有水、拾便袋和小零食。最近想找一条能慢慢走的路线，欢迎分享你家毛孩子喜欢的散步环境。',
+    image: photos.golden,
+    author: '汤圆',
+    pet: 'tangyuan',
+    topic: '遛宠日常',
+    category: '汪星人',
+    likes: 23,
+    city: '北京',
+    time: '35 分钟前 · 演示',
+  },
+  {
+    id: 's9',
+    title: '慢热毛孩子，也有自己的出门节奏',
+    body: '芝麻喜欢安静地观察，不着急和别的毛孩子打招呼。你们会怎么判断宠物今天想不想出门？想听听大家的经验。',
+    image: photos.cat,
+    author: '芝麻',
+    pet: 'zhima',
+    topic: '宠物日常',
+    category: '喵星人',
+    likes: 18,
+    city: '北京',
+    time: '50 分钟前 · 演示',
+  },
+  {
     id: 's7',
     title: '慢慢走，也想认识新朋友',
     body: '土豆喜欢一路闻闻停停。你家毛孩子更喜欢草地，还是安静的小路？先在评论里聊聊各自的散步习惯吧。',

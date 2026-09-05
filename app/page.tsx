@@ -73,7 +73,7 @@ import MobileMap from './mobile-map';
 import DevicePreview, { DeviceStatusBar } from './device-preview';
 import { isLocated } from '@/lib/amap-client';
 import { NavigationOptions } from './navigation-preview';
-import { postDistance } from './social-details';
+import { postDistance, selectFeedPosts } from './social-details';
 import { contactAccess } from './contact-policy';
 
 type State = {
@@ -203,7 +203,7 @@ export default function Home() {
   const [activePet, setActivePet] = useState('doubao');
   const [toast, setToast] = useState('');
   const [friendTab, setFriendTab] = useState('正在遛弯');
-  const [feedTab, setFeedTab] = useState('好友圈');
+  const [feedTab, setFeedTab] = useState('广场');
   const [privacy, setPrivacy] = useState<Visibility>('private');
   const [duration, setDuration] = useState('60 分钟');
   const [note, setNote] = useState('');
@@ -254,9 +254,10 @@ export default function Home() {
     next.legacy.posts = next.legacy.posts.map((p) =>
       /^s[1-6]$/.test(p.id) ? { ...p, city: '北京' } : p,
     );
-    // Add the stranger-contact example to existing demos without replacing user records.
-    if (!next.legacy.posts.some((p) => p.id === 's7')) {
-      next.legacy.posts.push(seedPosts.find((p) => p.id === 's7')!);
+    // Merge new public demo posts without replacing user-authored records or reactions.
+    for (const seed of seedPosts) {
+      if (!next.legacy.posts.some((p) => p.id === seed.id))
+        next.legacy.posts.push(seed);
     }
     setState(next);
     setReady(true);
@@ -549,14 +550,11 @@ export default function Home() {
     setNow(Date.now());
     notify('已重置演示好友的遛弯状态。');
   }
-  const relevantPosts = data.posts.filter((p) =>
-    feedTab === '我的收藏'
-      ? data.saved.includes(p.id)
-      : feedTab === '我的日常'
-        ? p.pet === 'me'
-        : feedTab === '同城散步'
-          ? p.pet !== 'me'
-          : p.pet === 'me' || state.buddyIds.includes(p.pet),
+  const relevantPosts = selectFeedPosts(
+    data.posts,
+    feedTab,
+    state.buddyIds,
+    data.saved,
   );
   const calDate = new Date(now || '2026-09-05T12:00:00');
   calDate.setDate(1);
@@ -784,7 +782,7 @@ export default function Home() {
                     {section === '宠物好友'
                       ? '宠物先成为朋友，主人自然熟悉。'
                       : section === '宠友圈'
-                        ? '分享散步和相遇，看看老朋友的近况。'
+                        ? '分享散步和相遇，认识更多毛孩子。'
                         : '从每一次出门，到每一件小事。'}
                   </p>
                 </div>
@@ -1163,7 +1161,7 @@ export default function Home() {
                   <div>
                     <Segments
                       value={feedTab}
-                      items={['好友圈', '同城散步', '我的日常', '我的收藏']}
+                      items={['广场', '好友圈', '我的日常', '我的收藏']}
                       onChange={setFeedTab}
                     />
                     <div className="moments-feed">
@@ -1180,7 +1178,14 @@ export default function Home() {
                                 <strong>
                                   {p.pet === 'me' ? data.pet.name : p.author}
                                 </strong>
-                                <small>{p.time} · 宠物日常</small>
+                                <small>
+                                  {p.time} ·{' '}
+                                  {p.pet === 'me'
+                                    ? '我的日常'
+                                    : state.buddyIds.includes(p.pet)
+                                      ? '宠物好友'
+                                      : '还不是好友'}
+                                </small>
                               </div>
                             </button>
                           </header>
