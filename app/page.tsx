@@ -47,7 +47,13 @@ import {
   SelectItem,
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { photos, initialState, toggleItem, type DemoState } from './demo-data';
+import {
+  photos,
+  seedPosts,
+  initialState,
+  toggleItem,
+  type DemoState,
+} from './demo-data';
 import {
   walkPlaces as basePlaces,
   petNetwork,
@@ -68,11 +74,13 @@ import DevicePreview, { DeviceStatusBar } from './device-preview';
 import { isLocated } from '@/lib/amap-client';
 import { NavigationOptions } from './navigation-preview';
 import { postDistance } from './social-details';
+import { contactAccess } from './contact-policy';
 
 type State = {
   legacy: DemoState;
   buddyIds: string[];
   requests: string[];
+  requestNotes: Record<string, string>;
   presences: Presence[];
   walk: Walk | null;
   history: Walk[];
@@ -91,6 +99,7 @@ function initial(now = 0): State {
     legacy: initialState(),
     buddyIds: ['doubao', 'cookie', 'niangao'],
     requests: [],
+    requestNotes: {},
     presences: seedPresences(now),
     walk: null,
     history: [],
@@ -199,6 +208,7 @@ export default function Home() {
   const [duration, setDuration] = useState('60 分钟');
   const [note, setNote] = useState('');
   const [chat, setChat] = useState('');
+  const [friendNote, setFriendNote] = useState('');
   const [inviteDate, setInviteDate] = useState('');
   const [activeInvitationId, setActiveInvitationId] = useState('');
   const [inviteSource, setInviteSource] = useState('');
@@ -244,6 +254,10 @@ export default function Home() {
     next.legacy.posts = next.legacy.posts.map((p) =>
       /^s[1-6]$/.test(p.id) ? { ...p, city: '北京' } : p,
     );
+    // Add the stranger-contact example to existing demos without replacing user records.
+    if (!next.legacy.posts.some((p) => p.id === 's7')) {
+      next.legacy.posts.push(seedPosts.find((p) => p.id === 's7')!);
+    }
     setState(next);
     setReady(true);
   }, []);
@@ -373,15 +387,27 @@ export default function Home() {
       share ? '本次地点已对宠物好友可见。' : '已隐身，好友看不到本次遛弯地点。',
     );
   }
+  function beginFriendRequest(id = activePet) {
+    setActivePet(id);
+    setFriendNote('');
+    setModal('friend-request');
+  }
   function requestFriend() {
-    if (isBuddy) return;
+    if (!contactAccess(state.buddyIds, state.requests, activePet).canRequest)
+      return;
     setState((s) => ({
       ...s,
       requests: [...new Set([...s.requests, activePet])],
+      requestNotes: {
+        ...s.requestNotes,
+        [activePet]: friendNote.trim().slice(0, 80),
+      },
     }));
-    notify('好友申请已保存，可在演示中模拟对方接受。');
+    setModal('pet');
+    notify('申请已保存。等待对方同意后，才能聊天和约遛。');
   }
   function acceptFriend() {
+    if (!state.requests.includes(activePet)) return;
     setState((s) => ({
       ...s,
       buddyIds: [...new Set([...s.buddyIds, activePet])],
@@ -389,7 +415,12 @@ export default function Home() {
     }));
     notify(`${pet.name}成为${data.pet.name}的好友啦！`);
   }
-  function openInvite() {
+  function openInvite(id = activePet) {
+    if (!contactAccess(state.buddyIds, state.requests, id).canInvite) {
+      beginFriendRequest(id);
+      return;
+    }
+    setActivePet(id);
     setInviteSource('');
     setNote('');
     const d = new Date(Date.now() + 86400000);
@@ -402,6 +433,10 @@ export default function Home() {
     setModal('invite');
   }
   function sendInvite() {
+    if (!contactAccess(state.buddyIds, state.requests, activePet).canInvite) {
+      notify('成为双方确认的好友后，才能邀请一起遛。');
+      return;
+    }
     if (
       !Number.isFinite(new Date(inviteDate).getTime()) ||
       new Date(inviteDate).getTime() <= Date.now()
@@ -429,6 +464,10 @@ export default function Home() {
     notify('邀请已加入演示会话，没有发送给真实用户。');
   }
   function sendMessage() {
+    if (!contactAccess(state.buddyIds, state.requests, activePet).canMessage) {
+      notify('成为双方确认的好友后，才能私聊。');
+      return;
+    }
     if (!chat.trim()) return;
     update((d) => ({
       ...d,
@@ -515,7 +554,9 @@ export default function Home() {
       ? data.saved.includes(p.id)
       : feedTab === '我的日常'
         ? p.pet === 'me'
-        : p.pet === 'me' || state.buddyIds.includes(p.pet),
+        : feedTab === '同城散步'
+          ? p.pet !== 'me'
+          : p.pet === 'me' || state.buddyIds.includes(p.pet),
   );
   const calDate = new Date(now || '2026-09-05T12:00:00');
   calDate.setDate(1);
@@ -1051,7 +1092,7 @@ export default function Home() {
                                     className="secondary"
                                     onClick={() => {
                                       setActivePet(id);
-                                      openInvite();
+                                      openInvite(id);
                                     }}
                                   >
                                     约下次
@@ -1122,7 +1163,7 @@ export default function Home() {
                   <div>
                     <Segments
                       value={feedTab}
-                      items={['好友圈', '我的日常', '我的收藏']}
+                      items={['好友圈', '同城散步', '我的日常', '我的收藏']}
                       onChange={setFeedTab}
                     />
                     <div className="moments-feed">
@@ -1490,6 +1531,7 @@ export default function Home() {
                 walk: '这一次，慢慢走',
                 pet: pet.name + '的宠物名片',
                 invite: '约好下一次散步',
+                'friend-request': '让毛孩子先认识一下',
                 'invitation-detail': '约遛详情',
                 chat: pet.name + '的铲屎官',
                 edit: '编辑宠物档案',
@@ -1917,7 +1959,7 @@ export default function Home() {
                       <MessageCircle size={17} />
                       聊两句
                     </button>
-                    <button className="primary" onClick={openInvite}>
+                    <button className="primary" onClick={() => openInvite()}>
                       <CalendarDays size={17} />
                       约下次遛
                     </button>
@@ -1926,8 +1968,12 @@ export default function Home() {
                   <div className="request-pending">
                     <p>
                       <Check size={17} />
-                      好友申请已发出
+                      好友申请已发出 · 等待回应
                     </p>
+                    <p>对方同意前，暂时不能私聊、约遛或追加申请。</p>
+                    {state.requestNotes?.[activePet] && (
+                      <p>申请留言：{state.requestNotes[activePet]}</p>
+                    )}
                     <button
                       className="secondary full-width"
                       onClick={acceptFriend}
@@ -1938,19 +1984,62 @@ export default function Home() {
                 ) : (
                   <button
                     className="primary full-width"
-                    onClick={requestFriend}
+                    onClick={() => beginFriendRequest()}
                   >
                     <UsersRound size={18} />让 TA 和 {data.pet.name} 成为好友
                   </button>
                 )}
               </div>
             )}
-            {modal === 'chat' && (
+            {(modal === 'friend-request' ||
+              ((modal === 'chat' || modal === 'invite') && !isBuddy)) && (
+              <form
+                className="demo-form"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  requestFriend();
+                }}
+              >
+                <p>
+                  向{pet.name}
+                  的主人申请成为宠物好友。对方同意后，才能私聊和邀请一起遛。
+                </p>
+                {state.requests.includes(activePet) ? (
+                  <output>
+                    申请已发出，等待对方回应。暂时不能追加消息或重复申请。
+                  </output>
+                ) : (
+                  <>
+                    <label>
+                      介绍一下毛孩子（选填）
+                      <textarea
+                        value={friendNote}
+                        onChange={(e) => setFriendNote(e.target.value)}
+                        maxLength={80}
+                        placeholder="你好，我家芒果也喜欢散步，希望有机会认识一下。"
+                      />
+                    </label>
+                    <small>{friendNote.length}/80 · 申请中不共享位置</small>
+                    <button className="primary full-width" type="submit">
+                      发送好友申请
+                    </button>
+                  </>
+                )}
+                <button
+                  className="secondary full-width"
+                  type="button"
+                  onClick={() => setModal('pet')}
+                >
+                  查看宠物名片
+                </button>
+              </form>
+            )}
+            {modal === 'chat' && isBuddy && (
               <div className="chat-box">
                 <div className="chat-shortcut">
                   <Photo src={photos[pet.photo]} className="avatar" />
                   <span>关于 {pet.name} 的日常</span>
-                  <button className="text-link" onClick={openInvite}>
+                  <button className="text-link" onClick={() => openInvite()}>
                     <Footprints size={15} />
                     约下次
                   </button>
@@ -1993,7 +2082,7 @@ export default function Home() {
                 </form>
               </div>
             )}
-            {modal === 'invite' && (
+            {modal === 'invite' && isBuddy && (
               <form
                 className="demo-form"
                 onSubmit={(e) => {
@@ -2006,10 +2095,7 @@ export default function Home() {
                   <SelectOne
                     value={pet.name}
                     items={petNetwork
-                      .filter(
-                        (p) =>
-                          state.buddyIds.includes(p.id) || p.id === activePet,
-                      )
+                      .filter((p) => state.buddyIds.includes(p.id))
                       .map((p) => p.name)}
                     label="选择宠物好友"
                     onChange={(v) =>
@@ -2215,30 +2301,59 @@ export default function Home() {
                 {post.pet !== 'me' &&
                   petNetwork.some((p) => p.id === post.pet) && (
                     <div className="post-walk-invite">
-                      <strong>下次，带毛孩子一起走走</strong>
-                      <p>和{post.author}的主人选个地点、约个时间。</p>
-                      <div>
-                        <button
-                          className="primary"
-                          onClick={() => {
-                            setActivePet(post.pet);
-                            openInvite();
-                            setInviteSource(post.id);
-                            setSelected(realPlaces[0].id);
-                          }}
-                        >
-                          邀请一起遛 <Footprints size={17} />
-                        </button>
-                        <button
-                          className="secondary"
-                          onClick={() => {
-                            setActivePet(post.pet);
-                            setModal('chat');
-                          }}
-                        >
-                          聊一聊 <MessageCircle size={17} />
-                        </button>
-                      </div>
+                      {contactAccess(state.buddyIds, state.requests, post.pet)
+                        .friend ? (
+                        <>
+                          <small>已是宠物好友</small>
+                          <strong>下次，带毛孩子一起走走</strong>
+                          <p>和{post.author}的主人选个地点、约个时间。</p>
+                          <div>
+                            <button
+                              className="primary"
+                              onClick={() => {
+                                openInvite(post.pet);
+                                setInviteSource(post.id);
+                                setSelected(realPlaces[0].id);
+                              }}
+                            >
+                              邀请一起遛 <Footprints size={17} />
+                            </button>
+                            <button
+                              className="secondary"
+                              onClick={() => {
+                                setActivePet(post.pet);
+                                setModal('chat');
+                              }}
+                            >
+                              聊一聊 <MessageCircle size={17} />
+                            </button>
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <strong>先成为宠物好友</strong>
+                          <p>
+                            对方同意后，再聊天、约遛。地点仅在对方主动共享时可见。
+                          </p>
+                          <div>
+                            <button
+                              className="primary"
+                              disabled={state.requests.includes(post.pet)}
+                              onClick={() => beginFriendRequest(post.pet)}
+                            >
+                              {state.requests.includes(post.pet)
+                                ? '申请已发出 · 等待回应'
+                                : '申请成为好友'}
+                            </button>
+                            <button
+                              className="secondary"
+                              onClick={() => showPet(post.pet)}
+                            >
+                              看看宠物名片
+                            </button>
+                          </div>
+                        </>
+                      )}
                     </div>
                   )}
                 <h4>朋友们的话</h4>

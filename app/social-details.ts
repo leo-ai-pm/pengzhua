@@ -3,6 +3,7 @@ import type { Post } from './demo-data';
 // Existing seed posts have no consented GPS coordinates. Never present their
 // demonstration distances as the user's or another owner's live position.
 const seedDistances: Record<string, string> = {
+  s7: '约 2 km',
   s1: '800 m',
   s2: '1.2 km',
   s3: '1.6 km',

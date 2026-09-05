@@ -91,6 +91,19 @@ export type Post = {
 };
 export const seedPosts: Post[] = [
   {
+    id: 's7',
+    title: '慢慢走，也想认识新朋友',
+    body: '土豆喜欢一路闻闻停停。你家毛孩子更喜欢草地，还是安静的小路？先在评论里聊聊各自的散步习惯吧。',
+    image: photos.corgi,
+    author: '土豆',
+    pet: 'tudou',
+    topic: '遛宠日常',
+    category: '汪星人',
+    likes: 12,
+    city: '北京',
+    time: '刚刚 · 演示',
+  },
+  {
     id: 's1',
     title: '今日份快乐，草地管够！',
     body: '没有什么烦恼是一次草地打滚解决不了的。豆包今天又交到了两个新朋友，你家毛孩子周末都去哪里玩？',
