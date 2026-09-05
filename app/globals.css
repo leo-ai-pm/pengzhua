@@ -4171,3 +4171,207 @@ body {
     height: clamp(300px, 47dvh, 440px);
   }
 }
+
+/* iPhone 15 Pro Max: 430 × 932 pt screen, 59 pt top and 34 pt bottom in desktop preview. */
+.device-presentation {
+  min-height: 100dvh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.iphone-stage,
+.iphone-hardware {
+  width: 100%;
+}
+.device-status-bar {
+  display: none;
+}
+.phone-app {
+  height: 100dvh;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.phone-app .app-main {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior-y: contain;
+  scrollbar-width: none;
+}
+.phone-app .app-main::-webkit-scrollbar {
+  display: none;
+}
+.phone-app .app-header {
+  height: calc(48px + env(safe-area-inset-top));
+  padding-top: env(safe-area-inset-top);
+  flex-shrink: 0;
+}
+.phone-app .mobile-nav {
+  position: relative;
+  inset: auto;
+  flex: 0 0 auto;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  height: calc(56px + env(safe-area-inset-bottom));
+  min-height: 56px;
+  padding: 4px 8px calc(4px + env(safe-area-inset-bottom));
+  backdrop-filter: none;
+  border-radius: 0;
+}
+.phone-app .mobile-nav button {
+  min-height: 44px;
+  min-width: 56px;
+  gap: 5px;
+}
+.phone-app .content-page {
+  padding-bottom: 24px;
+}
+.phone-map-page {
+  padding-bottom: 0;
+  min-height: 100%;
+}
+.real-map-stage {
+  height: clamp(280px, 43dvh, 420px);
+}
+.phone-app .map-service-state {
+  padding: 20px;
+  gap: 12px;
+}
+.phone-app .content-heading h1 {
+  font-size: 27px;
+}
+.phone-app .content-heading > button {
+  min-height: 44px;
+}
+.phone-app .header-right .icon-btn {
+  min-width: 44px;
+  min-height: 44px;
+  display: grid;
+  place-items: center;
+}
+@media (min-width: 600px) {
+  body {
+    padding: 0;
+  }
+  .device-presentation {
+    height: 100dvh;
+    min-height: 0;
+    padding: 24px;
+    overflow: hidden;
+  }
+  .iphone-stage {
+    width: calc(446px * var(--device-scale));
+    height: calc(948px * var(--device-scale));
+    flex-shrink: 0;
+    position: relative;
+  }
+  .iphone-hardware {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 446px;
+    height: 948px;
+    padding: 8px;
+    background: #373735;
+    border-radius: 63px;
+    transform: scale(var(--device-scale));
+    transform-origin: top left;
+    box-shadow:
+      0 0 0 1px #8e8b81,
+      0 18px 64px #28292133;
+  }
+  .phone-app {
+    width: 430px;
+    max-width: 430px;
+    height: 932px;
+    min-height: 932px;
+    border-radius: 55px;
+    overflow: hidden;
+    box-shadow: none;
+    margin: 0;
+    background: #fffdf7;
+  }
+  .device-status-bar {
+    height: 59px;
+    flex: 0 0 59px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 31px 0;
+    background: #fffdf7;
+    color: #22261f;
+    z-index: 36;
+  }
+  .device-status-bar > span {
+    font-size: 16px;
+    font-weight: 650;
+    letter-spacing: 0.1px;
+  }
+  .device-status-bar > div {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .dynamic-island {
+    position: absolute;
+    left: 50%;
+    top: 11px;
+    transform: translateX(-50%);
+    width: 126px;
+    height: 37px;
+    border-radius: 24px;
+    background: #171815;
+  }
+  .phone-app .app-header {
+    height: 48px;
+    padding-top: 0;
+    top: 0;
+  }
+  .phone-app .mobile-nav {
+    height: 83px;
+    min-height: 83px;
+    padding: 5px 10px 34px;
+    bottom: auto;
+    border-radius: 0;
+  }
+  .phone-app .mobile-nav::after {
+    content: '';
+    position: absolute;
+    width: 134px;
+    height: 5px;
+    border-radius: 4px;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #242721;
+    pointer-events: none;
+  }
+  .real-map-stage {
+    height: 382px;
+  }
+  .app-dialog {
+    width: 398px !important;
+    max-width: 398px !important;
+    max-height: 800px !important;
+    transform: scale(var(--iphone-preview-scale, 1));
+    transform-origin: center;
+  }
+  .toast {
+    max-width: 380px !important;
+    bottom: calc(50dvh - 350px * var(--iphone-preview-scale, 1));
+    transform: translateX(-50%) scale(var(--iphone-preview-scale, 1));
+  }
+}
+.phone-app > .toast {
+  position: absolute;
+  left: 50%;
+  bottom: 100px;
+  transform: translateX(-50%);
+  width: calc(100% - 32px) !important;
+  max-width: 380px !important;
+}
