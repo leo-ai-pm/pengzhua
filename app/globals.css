@@ -4928,3 +4928,34 @@ body {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+
+.saved-experience {
+  margin: 16px 0;
+  padding: 14px;
+  background: #edf2e7;
+  border-radius: 12px;
+  overflow-wrap: anywhere;
+}
+.saved-experience h3 {
+  font-size: 16px;
+  font-weight: 600;
+}
+.saved-experience p {
+  font-size: 14px;
+  line-height: 1.6;
+  margin: 8px 0;
+}
+.saved-experience small {
+  font-size: 12px;
+  color: #637354;
+}
+.previous-invitations,
+.old-care-records {
+  margin-top: 16px;
+  font-size: 14px;
+}
+.previous-invitations summary,
+.old-care-records summary {
+  padding: 10px 0;
+  cursor: pointer;
+}

@@ -203,9 +203,13 @@ export function PlaceContribution({
   const [name, setName] = useState(anchor?.name || '');
   const [address, setAddress] = useState(anchor?.area || '');
   const [kind, setKind] = useState<Place['kind']>(anchor?.kind || '草地公园');
-  const [desc, setDesc] = useState(anchor?.contributed ? anchor.desc : '');
+  const [desc, setDesc] = useState(
+    anchor?.experience?.note || (anchor?.contributed ? anchor.desc : ''),
+  );
   const [photo, setPhoto] = useState(anchor?.photoUrl || '');
-  const [features, setFeatures] = useState<string[]>(['全程牵绳']);
+  const [features, setFeatures] = useState<string[]>(
+    anchor?.experience?.features || ['全程牵绳'],
+  );
   return (
     <form
       className="contribute-form"
@@ -232,6 +236,11 @@ export function PlaceContribution({
           photoUrl: photo,
           quiet: features.includes('人少安静'),
           contributed: true,
+          experience: {
+            note: desc.trim(),
+            features: features.length ? features : ['设施待核实'],
+            updatedAt: Date.now(),
+          },
         });
       }}
     >

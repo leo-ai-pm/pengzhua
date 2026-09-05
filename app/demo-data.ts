@@ -227,13 +227,13 @@ export type DemoState = {
   comments: Record<string, string[]>;
   messages: Record<string, ChatMessage[]>;
   invitations: Invitation[];
-  checkins: { id: string; kind: string; time: string }[];
+  checkins: { id: string; kind: string; time: string; recordedAt?: number }[];
   pet: { name: string; breed: string; age: string; bio: string };
   placeSaved: string[];
 };
 export function initialState(): DemoState {
   return {
-    posts: seedPosts,
+    posts: [...seedPosts],
     liked: [],
     saved: [],
     following: [],

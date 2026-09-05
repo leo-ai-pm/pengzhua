@@ -41,6 +41,7 @@ export type Place = {
   photo: 'park' | 'golden' | 'corgi';
   quiet: boolean;
   contributed?: boolean;
+  experience?: { note: string; features: string[]; updatedAt: number };
   photoUrl?: string;
   location?: [number, number];
   source?: 'amap';

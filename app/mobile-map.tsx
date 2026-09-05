@@ -536,6 +536,14 @@ export default function MobileMap({
                     </button>
                   </div>
                 )}
+                {selectedPlace.experience && (
+                  <section className="saved-experience">
+                    <h3>我的携宠体验</h3>
+                    <p>{selectedPlace.experience.note}</p>
+                    <p>{selectedPlace.experience.features.join(' · ')}</p>
+                    <small>个人体验，不代表场地官方准入规则</small>
+                  </section>
+                )}
                 <div className="real-place-actions">
                   <NavigationPreview place={selectedPlace} />
                   <button

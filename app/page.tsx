@@ -75,6 +75,7 @@ import { isLocated } from '@/lib/amap-client';
 import { NavigationOptions } from './navigation-preview';
 import { postDistance, selectFeedPosts } from './social-details';
 import { contactAccess } from './contact-policy';
+import { invitationLabel, isUpcomingInvitation, careForDate } from './qa-model';
 
 type State = {
   legacy: DemoState;
@@ -105,6 +106,59 @@ function initial(now = 0): State {
     history: [],
     customPlaces: [],
   };
+}
+function restoreStored(raw: string, defaults: State): State {
+  try {
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== 'object') return defaults;
+    const legacy =
+      parsed.legacy && typeof parsed.legacy === 'object' ? parsed.legacy : {};
+    const restored = {
+      ...defaults,
+      ...parsed,
+      legacy: {
+        ...defaults.legacy,
+        ...legacy,
+        pet: { ...defaults.legacy.pet, ...legacy.pet },
+      },
+    };
+    for (const key of [
+      'posts',
+      'liked',
+      'saved',
+      'following',
+      'invitations',
+      'checkins',
+      'placeSaved',
+    ] as const) {
+      if (!Array.isArray(restored.legacy[key]))
+        restored.legacy[key] = defaults.legacy[key];
+    }
+    for (const key of [
+      'buddyIds',
+      'requests',
+      'presences',
+      'history',
+      'customPlaces',
+    ] as const) {
+      if (!Array.isArray(restored[key])) restored[key] = defaults[key];
+    }
+    for (const key of ['comments', 'messages'] as const) {
+      if (
+        !restored.legacy[key] ||
+        typeof restored.legacy[key] !== 'object' ||
+        Array.isArray(restored.legacy[key])
+      )
+        restored.legacy[key] = defaults.legacy[key];
+    }
+    restored.requestNotes =
+      restored.requestNotes && typeof restored.requestNotes === 'object'
+        ? restored.requestNotes
+        : {};
+    return restored;
+  } catch {
+    return defaults;
+  }
 }
 function Photo({
   src,
@@ -207,7 +261,10 @@ export default function Home() {
   const [privacy, setPrivacy] = useState<Visibility>('private');
   const [duration, setDuration] = useState('60 分钟');
   const [note, setNote] = useState('');
-  const [chat, setChat] = useState('');
+  const [chatDrafts, setChatDrafts] = useState<Record<string, string>>({});
+  const chat = chatDrafts[activePet] || '';
+  const setChat = (value: string) =>
+    setChatDrafts((drafts) => ({ ...drafts, [activePet]: value }));
   const [friendNote, setFriendNote] = useState('');
   const [inviteDate, setInviteDate] = useState('');
   const [activeInvitationId, setActiveInvitationId] = useState('');
@@ -218,7 +275,12 @@ export default function Home() {
   const [edit, setEdit] = useState(state.legacy.pet);
   const [memoryId, setMemoryId] = useState('');
   const [postId, setPostId] = useState<string | null>(null);
-  const [comment, setComment] = useState('');
+  const [commentDrafts, setCommentDrafts] = useState<Record<string, string>>(
+    {},
+  );
+  const comment = commentDrafts[postId || ''] || '';
+  const setComment = (value: string) =>
+    setCommentDrafts((drafts) => ({ ...drafts, [postId || '']: value }));
   const [calendarDay, setCalendarDay] = useState('');
   const [calendarOffset, setCalendarOffset] = useState(0);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -230,13 +292,7 @@ export default function Home() {
     try {
       const raw = localStorage.getItem(KEY);
       if (raw) {
-        const parsed = JSON.parse(raw);
-        if (
-          parsed.legacy?.pet &&
-          Array.isArray(parsed.buddyIds) &&
-          Array.isArray(parsed.presences)
-        )
-          next = { ...next, ...parsed };
+        next = restoreStored(raw, next);
       } else {
         const old = localStorage.getItem('qunaliu-demo-v1');
         if (old) {
@@ -265,11 +321,21 @@ export default function Home() {
   useEffect(() => {
     if (!ready) return;
     try {
-      localStorage.setItem(KEY, JSON.stringify(state));
+      const serialized = JSON.stringify(state);
+      if (localStorage.getItem(KEY) !== serialized)
+        localStorage.setItem(KEY, serialized);
     } catch {
       setToast('浏览器空间不足，当前修改将只保留到关闭页面。');
     }
   }, [state, ready]);
+  useEffect(() => {
+    function sync(event: StorageEvent) {
+      if (event.key === KEY && event.newValue)
+        setState(restoreStored(event.newValue, initial(Date.now())));
+    }
+    window.addEventListener('storage', sync);
+    return () => window.removeEventListener('storage', sync);
+  }, []);
   useEffect(() => {
     if (state.walk && now >= state.walk.expiresAt) {
       setState((s) =>
@@ -490,6 +556,7 @@ export default function Home() {
         {
           id: crypto.randomUUID(),
           kind,
+          recordedAt: t.getTime(),
           time: t.toLocaleString('zh-CN', {
             month: 'numeric',
             day: 'numeric',
@@ -565,6 +632,18 @@ export default function Home() {
     calDate.getMonth() + 1,
     0,
   ).getDate();
+  const selectedCare = careForDate(
+    data.checkins,
+    calDate.getFullYear(),
+    calDate.getMonth(),
+    calendarDay ? Number(calendarDay.split('-')[2]) : undefined,
+  );
+  const upcomingInvitations = data.invitations.filter((i) =>
+    isUpcomingInvitation(i, now),
+  );
+  const previousInvitations = data.invitations.filter(
+    (i) => !isUpcomingInvitation(i, now),
+  );
   const monthWalks = state.history.filter((w) => {
     const d = new Date(w.startedAt);
     return (
@@ -626,9 +705,7 @@ export default function Home() {
           <div className="row">
             <Footprints size={18} />
             <strong>下次一起遛</strong>
-            <span className="status">
-              {expired && inv.status === '待回应' ? '已过期' : inv.status}
-            </span>
+            <span className="status">{invitationLabel(inv, now)}</span>
           </div>
           <h4>
             {walkPlaces.find((p) => p.id === inv.place)?.name || '演示地点'}
@@ -1457,8 +1534,8 @@ export default function Home() {
                   <aside>
                     <section className="surface">
                       <h3 className="small-heading">照护小事</h3>
-                      {data.checkins.length ? (
-                        data.checkins.slice(0, 8).map((c) => (
+                      {selectedCare.length ? (
+                        selectedCare.map((c) => (
                           <div className="care-log" key={c.id}>
                             <Heart size={15} />
                             <div>
@@ -1469,9 +1546,21 @@ export default function Home() {
                           </div>
                         ))
                       ) : (
-                        <Empty>
-                          喂食、陪玩、洗澡，每一件小事都可以记下来。
-                        </Empty>
+                        <Empty>所选日期范围暂无照护记录。</Empty>
+                      )}
+                      {data.checkins.some(
+                        (c) => !Number.isFinite(c.recordedAt),
+                      ) && (
+                        <details className="old-care-records">
+                          <summary>未标注完整日期的旧记录</summary>
+                          {data.checkins
+                            .filter((c) => !Number.isFinite(c.recordedAt))
+                            .map((c) => (
+                              <p key={c.id}>
+                                {c.kind} · {c.time}
+                              </p>
+                            ))}
+                        </details>
                       )}
                       <button
                         className="text-link"
@@ -1483,12 +1572,20 @@ export default function Home() {
                     </section>
                     <section className="surface">
                       <h3 className="small-heading">下一次约定</h3>
-                      {data.invitations.length ? (
-                        data.invitations.map(inviteCard)
+                      {upcomingInvitations.length ? (
+                        upcomingInvitations.map(inviteCard)
                       ) : (
                         <p className="muted-copy">
                           还没有约遛计划。偶遇很好，提前约定也可以。
                         </p>
+                      )}
+                      {!!previousInvitations.length && (
+                        <details className="previous-invitations">
+                          <summary>
+                            历史与已取消约定（{previousInvitations.length}）
+                          </summary>
+                          {previousInvitations.map(inviteCard)}
+                        </details>
                       )}
                     </section>
                   </aside>
@@ -1677,6 +1774,14 @@ export default function Home() {
                     <p>适合：{place.size}</p>
                   </div>
                 </div>
+                {place.experience && (
+                  <section className="saved-experience">
+                    <h3>我的携宠体验</h3>
+                    <p>{place.experience.note}</p>
+                    <p>{place.experience.features.join(' · ')}</p>
+                    <small>个人体验，不代表场地官方准入规则</small>
+                  </section>
+                )}
                 <h3 className="small-heading">宠物朋友的此刻</h3>
                 {atPlace.length ? (
                   atPlace.map((l) => buddyRow(l.petId))
@@ -1723,7 +1828,7 @@ export default function Home() {
             {modal === 'invitation-detail' && activeInvitation && (
               <div className="invitation-detail">
                 <span className="invitation-status">
-                  {activeInvitation.status}
+                  {invitationLabel(activeInvitation, now)}
                 </span>
                 <h3>{invitationPlace?.name || '地点信息暂不可用'}</h3>
                 <p>{invitationPlace?.area}</p>
