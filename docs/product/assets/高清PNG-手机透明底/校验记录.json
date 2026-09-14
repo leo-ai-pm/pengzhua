@@ -1,0 +1,496 @@
+{
+  "exportedAt": "2026-09-05",
+  "source": "https://qunaliu-pet-community.ljhsmart1.chatgpt.site/",
+  "format": "PNG",
+  "pixelDensity": 3,
+  "contentScreenLogicalSize": [
+    430,
+    932
+  ],
+  "count": 37,
+  "allDimensionsCorrect": true,
+  "allCornersTransparent": true,
+  "files": [
+    {
+      "name": "01-北京遛宠地图.png",
+      "width": 1344,
+      "height": 2850,
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "bytes": 854516,
+      "sha256": "35c97f9409f304e3ffcd65a3206e8ae9b25944c2c53ac79fd30d15e615065bf8"
+    },
+    {
+      "name": "02-地点详情-收起.png",
+      "width": 1344,
+      "height": 2850,
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "bytes": 435986,
+      "sha256": "cd64ad871b0a3f0b15ca660a489778e56b1204c781ad5f1fea49a9217b4f2a3c"
+    },
+    {
+      "name": "03-地点详情-展开.png",
+      "width": 1344,
+      "height": 2850,
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "bytes": 481708,
+      "sha256": "b34cb72f138db3d9c1e82fa1344a31756f3b7e265a9530164d58d60088cdd911"
+    },
+    {
+      "name": "03b-地点详情-入园条件.png",
+      "width": 1344,
+      "height": 2850,
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "bytes": 386621,
+      "sha256": "0926debe8ef366a83a139406f7e4133cc892fd26b7469c97a3d5bf3157515391"
+    },
+    {
+      "name": "04-导航方式提示.png",
+      "width": 1344,
+      "height": 2850,
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "bytes": 531759,
+      "sha256": "8c8797199b6f201f311434872171c24224935c82e317c17549f85cfd406df5dc"
+    },
+    {
+      "name": "05-开始遛弯-隐身默认.png",
+      "width": 1344,
+      "height": 2850,
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "bytes": 605349,
+      "sha256": "ee761922c59bd1249c1abe14c04a113d171f767f40c68e7ce5f0b2ad39f2660f"
+    },
+    {
+      "name": "06-遛弯中-隐身.png",
+      "width": 1344,
+      "height": 2850,
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "bytes": 464082,
+      "sha256": "0faf524082b1a21cd62145317a0ad9c18496cd7a083ae623ed9d770fabf2a5b9"
+    },
+    {
+      "name": "07-遛弯中-好友可见.png",
+      "width": 1344,
+      "height": 2850,
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "bytes": 498133,
+      "sha256": "aa06a02cfa8d920c8ab4c98990c9ffdbd8af02178f38e3ccde42224d4a015409"
+    },
+    {
+      "name": "08-遛弯结束-回忆.png",
+      "width": 1344,
+      "height": 2850,
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "bytes": 434404,
+      "sha256": "aaa02fc1fc34e3c3818d2a3fde7a11a5361a1df6666ed4eef68c3b2e17ec8075"
+    },
+    {
+      "name": "09-我的宠物.png",
+      "width": 1344,
+      "height": 2850,
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "bytes": 637791,
+      "sha256": "a80ba6ff4dd50f9874f52236f206ae016b8fb4a037ab2b7319ba18ce1138fb18"
+    },
+    {
+      "name": "10-编辑宠物档案.png",
+      "width": 1344,
+      "height": 2850,
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "bytes": 382456,
+      "sha256": "adcc6fbfca2fc29661cf3db88965cfbb7ae402d2d5c31ce1bb0149ff689edd76"
+    },
+    {
+      "name": "11-宠物好友列表.png",
+      "width": 1344,
+      "height": 2850,
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "bytes": 540777,
+      "sha256": "3d0d748b825542011eb4f9ac843102b2f62b83f615bc7430bb787b7510f3ff10"
+    },
+    {
+      "name": "11b-所有宠物好友.png",
+      "width": 1344,
+      "height": 2850,
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "bytes": 630924,
+      "sha256": "9b503751cbde2f524f25a4c242313023b8f3332aa726d7d1c6d2980459b36be2"
+    },
+    {
+      "name": "12-陌生宠物名片.png",
+      "width": 1344,
+      "height": 2850,
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "bytes": 1905228,
+      "sha256": "0459223ca0cee9e9c6914da707cc4c97def5cbfcb13e2b27e10fd6e42c246acb"
+    },
+    {
+      "name": "13-好友申请表单.png",
+      "width": 1344,
+      "height": 2850,
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "bytes": 484663,
+      "sha256": "8a88bc64e79c0313f18d529950dc78fe0f4eed957b48cc15d24f70bd28b2c505"
+    },
+    {
+      "name": "14-好友申请-等待回应.png",
+      "width": 1344,
+      "height": 2850,
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "bytes": 1904130,
+      "sha256": "8b8011ec29e5d0216ccfcf7d26413c27013cfc7ffa5669475cb3568b60a2aa02"
+    },
+    {
+      "name": "15-好友聊天.png",
+      "width": 1344,
+      "height": 2850,
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "bytes": 525916,
+      "sha256": "cceea1546166c929c9e5c353fd4bf4e284601e4d7ee1e1faa929f81cfbbc74f4"
+    },
+    {
+      "name": "16-邀请一起遛-表单.png",
+      "width": 1344,
+      "height": 2850,
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "bytes": 382435,
+      "sha256": "587871d9e4e700e4621b94d9a4a68cc57c3984cde3afd3da7266ff460a031c26"
+    },
+    {
+      "name": "17-约遛邀请-待回应.png",
+      "width": 1344,
+      "height": 2850,
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "bytes": 558308,
+      "sha256": "93193aacb615772bbaa692be93085baf8e787c02b7316c14b337bd58cc72590e"
+    },
+    {
+      "name": "18-已接受约遛-详情.png",
+      "width": 1344,
+      "height": 2850,
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "bytes": 501243,
+      "sha256": "499e67231640a0ab0de52a3aa007372591c79b1b9b1404b3937f5af8a55fb4e5"
+    },
+    {
+      "name": "19-陪伴日历.png",
+      "width": 1344,
+      "height": 2850,
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "bytes": 229643,
+      "sha256": "36169da335b83a7c897efa2b72328b60b3b2141c1a1799637c94806d0a1e9f46"
+    },
+    {
+      "name": "20-宠友圈-公开广场.png",
+      "width": 1344,
+      "height": 2850,
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "bytes": 1897242,
+      "sha256": "83534f1f81a030d51ec14fa2f4f50a99a532dc5f82d8ca6a5a47ac7b2846ac16"
+    },
+    {
+      "name": "21-陌生用户帖子详情.png",
+      "width": 1344,
+      "height": 2850,
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "bytes": 2016575,
+      "sha256": "eac9d2accb580b8a36d4989e6a9dd0d80041b4f8c674bddbd71a01fe9609efd7"
+    },
+    {
+      "name": "21b-陌生帖子-好友限制.png",
+      "width": 1344,
+      "height": 2850,
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "bytes": 2000008,
+      "sha256": "b53842a41e2dc7201c46318e1eb8f3678376eaaf42cd5eb07a0b8aba18435294"
+    },
+    {
+      "name": "22-好友帖子详情.png",
+      "width": 1344,
+      "height": 2850,
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "bytes": 1996744,
+      "sha256": "2b9c422237da03f3a2b0b1ee14143394b36ffea6b2af7ca4c00019682a62717b"
+    },
+    {
+      "name": "22b-好友帖子-邀约入口.png",
+      "width": 1344,
+      "height": 2850,
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "bytes": 1994151,
+      "sha256": "6221c49cb372cc4024606f42704d2ad61235089dd8091c72f10ff1c01608a2c6"
+    },
+    {
+      "name": "23-发布宠物日常.png",
+      "width": 1344,
+      "height": 2850,
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "bytes": 616091,
+      "sha256": "6a52fb40c6b0e63c7fe2edaacfe404fefa3a82faa51986f30057e5a484ada7d6"
+    },
+    {
+      "name": "24-我的-个人中心.png",
+      "width": 1344,
+      "height": 2850,
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "bytes": 631098,
+      "sha256": "de297e8b6b5f4a1ea573fb073d93e75c6c4f5e4ef3ff22ab171819bc8ddf65a2"
+    },
+    {
+      "name": "25-扫一扫.png",
+      "width": 1344,
+      "height": 2850,
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "bytes": 142687,
+      "sha256": "f63ffbdf5712ce976813731bf3058356a563e543e68b713a6d757ca3eeefa804"
+    },
+    {
+      "name": "26-我的碰爪码.png",
+      "width": 1344,
+      "height": 2850,
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "bytes": 139342,
+      "sha256": "c51134e18ad1be99bbc8a53b648cdab0f76ddfdd5dc96addc6dbdae0c5f30a0d"
+    },
+    {
+      "name": "27-我的约遛.png",
+      "width": 1344,
+      "height": 2850,
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "bytes": 90994,
+      "sha256": "3951fedcd02e934ebc75571a7ec8767b9215f53924b9aa2f16279173e82def01"
+    },
+    {
+      "name": "28-设置.png",
+      "width": 1344,
+      "height": 2850,
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "bytes": 146479,
+      "sha256": "b22aa0706c4bacbfd66ca063d5c3af5554ecef8c3f26f20247ae636015251b74"
+    },
+    {
+      "name": "29-隐私与社交权限.png",
+      "width": 1344,
+      "height": 2850,
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "bytes": 180002,
+      "sha256": "c7048432cea6bf7f96369ea6dc8717282441c152803bb00949599865acd63f81"
+    },
+    {
+      "name": "30-我的收藏.png",
+      "width": 1344,
+      "height": 2850,
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "bytes": 106400,
+      "sha256": "e65f144afa84ca1c91b1bbe7fb8f2e7624248f13c63ac0b0acd335bfd3d1bfb6"
+    },
+    {
+      "name": "30b-我的收藏-帖子.png",
+      "width": 1344,
+      "height": 2850,
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "bytes": 90335,
+      "sha256": "5312d93c31e3c065501936668e9656810d680834207122f8fd9566098a40b0f6"
+    },
+    {
+      "name": "31-关于碰爪.png",
+      "width": 1344,
+      "height": 2850,
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "bytes": 179764,
+      "sha256": "ac6176643c6be03a49d04c01291dc74b56b12e4e62cbaff1f8d1d7c5c3bf44d5"
+    },
+    {
+      "name": "32-好友宠物名片.png",
+      "width": 1344,
+      "height": 2850,
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "bytes": 1851741,
+      "sha256": "8eba0cb21c30d6488de6741f41642fec860618b751e7d4dc5d0bf99c30d6b1d5"
+    }
+  ]
+}

@@ -39,3 +39,7 @@ next-env.d.ts
 
 *.tsbuildinfo
 !.env.example
+
+# personal deployment binding and private document synchronization records
+/.openai/hosting.json
+/docs/product/maintenance/feishu-*.json

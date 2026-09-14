@@ -6,7 +6,7 @@
 
 1. 登录 [高德开放平台](https://console.amap.com/)，在应用管理中创建应用。
 2. 添加 Key，服务平台选择 **Web端（JS API）**；获取 Key 和对应的安全密钥。不要选择仅 Web 服务 API 类型的 Key。
-3. 按控制台要求配置本项目域名 `qunaliu-pet-community.ljhsmart1.chatgpt.site` 的使用限制。
+3. 按控制台要求配置你自己的部署域名的使用限制；克隆本仓库不会获得原部署的地图凭据。
 4. 开发时在本项目忽略提交的 `.env` 中填写 `AMAP_JSAPI_KEY`、`AMAP_SECURITY_JSCODE`，变量示例见 `.env.example`。线上填写同名的 Sites 环境变量，安全密钥必须设为 secret；配置完成后重新发布。
 5. 检查：北京真实底图 → 搜索具体公园 → 点击定位并授权 → 选择真实地点 → 打开导航提示 → 切换出行方式 → 确认演示 → 返回地点。再检查拒绝定位、无结果、超时、Key 错误和配额不足提示。
 

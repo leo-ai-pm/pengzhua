@@ -2,6 +2,8 @@
 
 通过浏览器演示手机 App 的操作体验。桌面以 iPhone 15 Pro Max 的 430 × 932 逻辑画布等比呈现，含状态栏及 Home 安全区，屏幕内部滚动；手机全宽并使用系统安全区。核心链路：找到适合遛宠的地点 → 看宠物朋友 → 出门 → 留下相遇与陪伴记录。
 
+![碰爪产品演示](docs/product/assets/pengzhua-demo-cover.png)
+
 ## 当前交付状态
 
 已完成手机布局、高德 JS API 2.0 接入代码、搜索北京 POI、用户主动定位、导航方式演示弹框（暂不规划路线或跳转高德）、真实地点收藏及现场体验补充。已创建本项目高德 Web Key，配置线上域名白名单与服务端安全密钥。 无 Key 时显示待启用状态，取消旧的手绘示意地图。
@@ -27,12 +29,28 @@
 
 ## 本地开发
 
+需要 Node.js 22.13.0 或更高版本及 npm。
+
 ```sh
-npm install
+git clone https://github.com/leo-ai-pm/pengzhua.git
+cd pengzhua
+npm ci
+cp .env.example .env
 npm run dev
 ```
 
-按 `.env.example` 配置忽略提交的 `.env`，线上通过 Sites 同名环境变量配置。生产构建 `npm run build`。类型检查 `npx tsc --noEmit`。业务静态检查 `npx oxlint app lib/amap-client.ts lib/amap-service.ts`。测试 `node --test app/walk-model.test.mjs lib/amap-service.test.mjs`。
+打开终端显示的本地地址，默认是 `http://localhost:3000`。地图凭据留空时仍可体验本地宠物社交演示，真实地图会显示待启用；启用方式见 [地图配置](MAP-SETUP.md)。已有 `.env` 的开发者无需再次复制，避免覆盖自己的配置。
+
+```sh
+npm test             # 现有业务测试
+npm run typecheck    # TypeScript 检查
+npm run build        # 生产构建
+npm start            # 在本机预览 Worker 构建产物
+```
+
+普通本地开发不需要 OpenAI Sites 账号。现有部署所有者可继续使用本地忽略提交的 `.openai/hosting.json`；其他开发者部署时应创建自己的站点与环境变量。
+
+业务静态检查：`npx oxlint app lib/amap-client.ts lib/amap-service.ts`。
 
 生成器附带组件有既有 lint 报告，业务代码单独检查。按 Sites 环境约定，未进行浏览器自动化测试；真实高德搜索与步行接口已返回有效数据；设备定位需用户在手机浏览器中授权。
 
@@ -59,3 +77,11 @@ npm run dev
 ## 广场默认入口
 
 宠友圈默认面向所有用户展示“广场”，混合好友与非好友的公开演示帖子。好友圈作为独立筛选保留。土豆、汤圆、芝麻默认不是好友，申请成功前不能私聊或约遛；用户已有好友关系和记录不重置。
+
+## 产品文档与配图
+
+[产品文档索引](docs/product/README.md)包含 PRD、用户流程、状态与权限、数据模型、验收计划和页面演示图。文档区分已实现能力、演示模拟和待开发需求。
+
+## 开源许可
+
+项目原创代码及文档采用 [MIT License](LICENSE)。第三方依赖、地图、照片和截图中包含的第三方素材遵循各自许可，详见 [第三方素材说明](THIRD_PARTY_NOTICES.md)。
